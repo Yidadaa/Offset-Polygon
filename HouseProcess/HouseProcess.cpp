@@ -36,6 +36,7 @@ void test() {
     };
     Region r = Region(segs);
     isPassed("Point::isInReigon", Point(0.5, 0.5).isInRegion(r));
+
     /* 开始测试House类的findRegions方法
      * 分为两种情况，一种是闭合，一种是不闭合
      * 每种情况又分线段的四种排列方式
