@@ -1,0 +1,1754 @@
+{
+    "Id": 1507771341973,
+    "walls": [
+        {
+            "Id": 1507771461683,
+            "select": false,
+            "angle": 332.8144026438899,
+            "sp_wallId": 0,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 5.281320935144922,
+            "endPoint": {
+                "x": 19.6714,
+                "Id": 1507772025997,
+                "y": 18.2001,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 14.9735,
+                "Id": 1507771779055,
+                "y": 20.613,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771482090,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 1507771474373,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.1786000000000065,
+            "endPoint": {
+                "x": 19.1143,
+                "Id": 1507771484812,
+                "y": 22.1714,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.2929,
+                "Id": 1507771476498,
+                "y": 22.1714,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771492519,
+            "select": false,
+            "angle": 90,
+            "sp_wallId": 1507771482090,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.1999999999999993,
+            "endPoint": {
+                "x": 19.1143,
+                "Id": 1507771497683,
+                "y": 22.3714,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.1143,
+                "Id": 1507771484812,
+                "y": 22.1714,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771504794,
+            "select": false,
+            "angle": 0,
+            "sp_wallId": 1507771492519,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.1786000000000065,
+            "endPoint": {
+                "x": 19.2929,
+                "Id": 1507771507425,
+                "y": 22.3714,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.1143,
+                "Id": 1507771497683,
+                "y": 22.3714,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771516820,
+            "select": false,
+            "angle": 90,
+            "sp_wallId": 1507771504794,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.3358000000000025,
+            "endPoint": {
+                "x": 19.2929,
+                "Id": 1507771519857,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.2929,
+                "Id": 1507771507425,
+                "y": 22.3714,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771561720,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 1507771516820,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 1.399999999999999,
+            "endPoint": {
+                "x": 17.8929,
+                "Id": 1507771575231,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.2929,
+                "Id": 1507771519857,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771577595,
+            "select": false,
+            "angle": 270,
+            "sp_wallId": 1507771561720,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.3358000000000025,
+            "endPoint": {
+                "x": 17.8929,
+                "Id": 1507771579034,
+                "y": 22.3714,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 17.8929,
+                "Id": 1507771575231,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771581600,
+            "select": false,
+            "angle": 0,
+            "sp_wallId": 1507771577595,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.207099999999997,
+            "endPoint": {
+                "x": 18.1,
+                "Id": 1507771584896,
+                "y": 22.3714,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 17.8929,
+                "Id": 1507771579034,
+                "y": 22.3714,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771586753,
+            "select": false,
+            "angle": 270,
+            "sp_wallId": 1507771581600,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.1999999999999993,
+            "endPoint": {
+                "x": 18.1,
+                "Id": 1507771589137,
+                "y": 22.1714,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 18.1,
+                "Id": 1507771584896,
+                "y": 22.3714,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771596203,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 1507771586753,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.3570999999999991,
+            "endPoint": {
+                "x": 17.7429,
+                "Id": 1507771600523,
+                "y": 22.1714,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 18.1,
+                "Id": 1507771589137,
+                "y": 22.1714,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771604427,
+            "select": false,
+            "angle": 90,
+            "sp_wallId": 1507771596203,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.5358000000000018,
+            "endPoint": {
+                "x": 17.7429,
+                "Id": 1507771606530,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 17.7429,
+                "Id": 1507771600523,
+                "y": 22.1714,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771617770,
+            "select": false,
+            "angle": 150.3484293425455,
+            "sp_wallId": 1507771604427,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 1.660318755540632,
+            "endPoint": {
+                "x": 16.3,
+                "Id": 1507771630156,
+                "y": 23.5286,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 17.7429,
+                "Id": 1507771606530,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771632845,
+            "select": false,
+            "angle": 241.1612695354055,
+            "sp_wallId": 1507771617770,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 1.850953754149461,
+            "endPoint": {
+                "x": 15.4072,
+                "Id": 1507771642576,
+                "y": 21.9072,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 16.3,
+                "Id": 1507771630156,
+                "y": 23.5286,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771645884,
+            "select": false,
+            "angle": 332.6303594137988,
+            "sp_wallId": 1507771632845,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 2.050989607482206,
+            "endPoint": {
+                "x": 17.2286,
+                "Id": 1507771666607,
+                "y": 20.9643,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 15.4072,
+                "Id": 1507771642576,
+                "y": 21.9072,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771676407,
+            "select": false,
+            "angle": 65.98594763693691,
+            "sp_wallId": 1507771645884,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.7897568739808533,
+            "endPoint": {
+                "x": 17.55,
+                "Id": 1507771678003,
+                "y": 21.6857,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 17.2286,
+                "Id": 1507771666607,
+                "y": 20.9643,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771708673,
+            "select": false,
+            "angle": 336.0457792123156,
+            "sp_wallId": 1507771676407,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.2110803164674553,
+            "endPoint": {
+                "x": 17.7429,
+                "Id": 1507771717695,
+                "y": 21.6,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 17.55,
+                "Id": 1507771678003,
+                "y": 21.6857,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771741783,
+            "select": false,
+            "angle": 245.4006678863124,
+            "sp_wallId": 1507771708673,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.9582718299104955,
+            "endPoint": {
+                "x": 17.344,
+                "Id": 1507771749533,
+                "y": 20.7287,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 17.7429,
+                "Id": 1507771717695,
+                "y": 21.6,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771753494,
+            "select": false,
+            "angle": 152.3424189677424,
+            "sp_wallId": 1507771741783,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 2.061671702769385,
+            "endPoint": {
+                "x": 15.5179,
+                "Id": 1507771765498,
+                "y": 21.6857,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 17.344,
+                "Id": 1507771749533,
+                "y": 20.7287,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507771766466,
+            "select": false,
+            "angle": 243.0920047252141,
+            "sp_wallId": 1507771753494,
+            "ep_wallId": 1507771461683,
+            "mainWall": false,
+            "distance": 1.202936677468937,
+            "endPoint": {
+                "x": 14.9735,
+                "Id": 1507771779055,
+                "y": 20.613,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 15.5179,
+                "Id": 1507771765498,
+                "y": 21.6857,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772005837,
+            "select": false,
+            "angle": 270,
+            "sp_wallId": 1507771482090,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 1.964000000000002,
+            "endPoint": {
+                "x": 19.2929,
+                "Id": 1507772078231,
+                "y": 20.2074,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.2929,
+                "Id": 1507771476498,
+                "y": 22.1714,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772038969,
+            "select": false,
+            "angle": 270,
+            "sp_wallId": 1507771461683,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 1.051899999999996,
+            "endPoint": {
+                "x": 19.6714,
+                "Id": 1507772040881,
+                "y": 17.1482,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.6714,
+                "Id": 1507772025997,
+                "y": 18.2001,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772052571,
+            "select": false,
+            "angle": 90,
+            "sp_wallId": 1507772047992,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 3.059199999999997,
+            "endPoint": {
+                "x": 23.6377,
+                "Id": 1507772083980,
+                "y": 20.2074,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 23.6377,
+                "Id": 1507772050365,
+                "y": 17.1482,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772125427,
+            "select": false,
+            "angle": 0,
+            "sp_wallId": 1507772005837,
+            "ep_wallId": 1507772052571,
+            "mainWall": false,
+            "distance": 4.344799999999999,
+            "endPoint": {
+                "x": 23.6377,
+                "Id": 1507772083980,
+                "y": 20.2074,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.2929,
+                "Id": 1507772078231,
+                "y": 20.2074,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772130710,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 0,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.8999999999999986,
+            "endPoint": {
+                "x": 19.9259,
+                "Id": 1507772134473,
+                "y": 20.4074,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 20.8259,
+                "Id": 1507772134473,
+                "y": 20.4074,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772143924,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 0,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.4079999999999977,
+            "endPoint": {
+                "x": 19.5179,
+                "Id": 1507772146497,
+                "y": 20.4074,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.9259,
+                "Id": 1507772134473,
+                "y": 20.4074,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772151685,
+            "select": false,
+            "angle": 90,
+            "sp_wallId": 1507772143924,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.9804999999999957,
+            "endPoint": {
+                "x": 19.5179,
+                "Id": 1507772154249,
+                "y": 21.3879,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.5179,
+                "Id": 1507772146497,
+                "y": 20.4074,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772158030,
+            "select": false,
+            "angle": 0,
+            "sp_wallId": 1507772151685,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.4079999999999977,
+            "endPoint": {
+                "x": 19.9259,
+                "Id": 1507772160122,
+                "y": 21.3879,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.5179,
+                "Id": 1507772154249,
+                "y": 21.3879,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772163880,
+            "select": false,
+            "angle": 90,
+            "sp_wallId": 1507772158030,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.2121000000000031,
+            "endPoint": {
+                "x": 19.9259,
+                "Id": 1507772167119,
+                "y": 21.6,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.9259,
+                "Id": 1507772160122,
+                "y": 21.3879,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772173679,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 1507772163880,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.4079999999999977,
+            "endPoint": {
+                "x": 19.5179,
+                "Id": 1507772174398,
+                "y": 21.6,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.9259,
+                "Id": 1507772167119,
+                "y": 21.6,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772181126,
+            "select": false,
+            "angle": 90,
+            "sp_wallId": 1507772173679,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 1.107200000000002,
+            "endPoint": {
+                "x": 19.5179,
+                "Id": 1507772181924,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.5179,
+                "Id": 1507772174398,
+                "y": 21.6,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772184063,
+            "select": false,
+            "angle": 0,
+            "sp_wallId": 1507772181126,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.8878999999999948,
+            "endPoint": {
+                "x": 20.4058,
+                "Id": 1507772186132,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.5179,
+                "Id": 1507772181924,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772188203,
+            "select": false,
+            "angle": 270,
+            "sp_wallId": 1507772184063,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 1.562600000000003,
+            "endPoint": {
+                "x": 20.4058,
+                "Id": 1507772191104,
+                "y": 21.1446,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 20.4058,
+                "Id": 1507772186132,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772193513,
+            "select": false,
+            "angle": 0,
+            "sp_wallId": 1507772188203,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.1824000000000012,
+            "endPoint": {
+                "x": 20.5882,
+                "Id": 1507772196583,
+                "y": 21.1446,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 20.4058,
+                "Id": 1507772191104,
+                "y": 21.1446,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772200735,
+            "select": false,
+            "angle": 90,
+            "sp_wallId": 1507772193513,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 1.562600000000003,
+            "endPoint": {
+                "x": 20.5882,
+                "Id": 1507772202636,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 20.5882,
+                "Id": 1507772196583,
+                "y": 21.1446,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772210973,
+            "select": false,
+            "angle": 0,
+            "sp_wallId": 1507772200735,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 2.298799999999996,
+            "endPoint": {
+                "x": 22.887,
+                "Id": 1507772230536,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 20.5882,
+                "Id": 1507772202636,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772232078,
+            "select": false,
+            "angle": 270,
+            "sp_wallId": 1507772210973,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 2.299800000000001,
+            "endPoint": {
+                "x": 22.887,
+                "Id": 1507772234620,
+                "y": 20.4074,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 22.887,
+                "Id": 1507772230536,
+                "y": 22.7072,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772238457,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 1507772232078,
+            "ep_wallId": 1507772130710,
+            "mainWall": false,
+            "distance": 2.061099999999996,
+            "endPoint": {
+                "x": 20.8259,
+                "Id": 1507772134473,
+                "y": 20.4074,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 22.887,
+                "Id": 1507772234620,
+                "y": 20.4074,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772294382,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 1507772052571,
+            "ep_wallId": 1507772038969,
+            "mainWall": false,
+            "distance": 3.966300000000004,
+            "endPoint": {
+                "x": 19.6714,
+                "Id": 1507772040881,
+                "y": 17.1482,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 23.6377,
+                "Id": 1507772050365,
+                "y": 17.1482,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772299070,
+            "select": false,
+            "angle": 0,
+            "sp_wallId": 0,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.9000000000000057,
+            "endPoint": {
+                "x": 20.5714,
+                "Id": 1507772302360,
+                "y": 16.9482,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.6714,
+                "Id": 1507772302360,
+                "y": 16.9482,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772310023,
+            "select": false,
+            "angle": 0,
+            "sp_wallId": 0,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 2.315599999999993,
+            "endPoint": {
+                "x": 22.887,
+                "Id": 1507772311181,
+                "y": 16.9482,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 20.5714,
+                "Id": 1507772302360,
+                "y": 16.9482,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772325399,
+            "select": false,
+            "angle": 270,
+            "sp_wallId": 1507772310023,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 3.739900000000004,
+            "endPoint": {
+                "x": 22.887,
+                "Id": 1507772328762,
+                "y": 13.2083,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 22.887,
+                "Id": 1507772311181,
+                "y": 16.9482,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772332295,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 1507772325399,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 2.061099999999996,
+            "endPoint": {
+                "x": 20.8259,
+                "Id": 1507772334477,
+                "y": 13.2083,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 22.887,
+                "Id": 1507772328762,
+                "y": 13.2083,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772338089,
+            "select": false,
+            "angle": 90,
+            "sp_wallId": 1507772332295,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 2.297499999999999,
+            "endPoint": {
+                "x": 20.8259,
+                "Id": 1507772340683,
+                "y": 15.5058,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 20.8259,
+                "Id": 1507772334477,
+                "y": 13.2083,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772344771,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 1507772338089,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 1.154500000000002,
+            "endPoint": {
+                "x": 19.6714,
+                "Id": 1507772344962,
+                "y": 15.5058,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 20.8259,
+                "Id": 1507772340683,
+                "y": 15.5058,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772346808,
+            "select": false,
+            "angle": 90,
+            "sp_wallId": 1507772344771,
+            "ep_wallId": 1507772299070,
+            "mainWall": false,
+            "distance": 1.442400000000005,
+            "endPoint": {
+                "x": 19.6714,
+                "Id": 1507772302360,
+                "y": 16.9482,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.6714,
+                "Id": 1507772344962,
+                "y": 15.5058,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772355219,
+            "select": false,
+            "angle": 0,
+            "sp_wallId": 0,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.9000000000000057,
+            "endPoint": {
+                "x": 20.5714,
+                "Id": 1507772356125,
+                "y": 15.3058,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.6714,
+                "Id": 1507772356125,
+                "y": 15.3058,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772359104,
+            "select": false,
+            "angle": 270,
+            "sp_wallId": 0,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 2.747199999999998,
+            "endPoint": {
+                "x": 20.5714,
+                "Id": 1507772366305,
+                "y": 12.5586,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 20.5714,
+                "Id": 1507772356125,
+                "y": 15.3058,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772369240,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 1507772359104,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 2.828500000000002,
+            "endPoint": {
+                "x": 17.7429,
+                "Id": 1507772384193,
+                "y": 12.5586,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 20.5714,
+                "Id": 1507772366305,
+                "y": 12.5586,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772387545,
+            "select": false,
+            "angle": 90,
+            "sp_wallId": 1507772369240,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 2.747199999999998,
+            "endPoint": {
+                "x": 17.7429,
+                "Id": 1507772388487,
+                "y": 15.3058,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 17.7429,
+                "Id": 1507772384193,
+                "y": 12.5586,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772390953,
+            "select": false,
+            "angle": 0,
+            "sp_wallId": 1507772387545,
+            "ep_wallId": 1507772355219,
+            "mainWall": false,
+            "distance": 1.928499999999996,
+            "endPoint": {
+                "x": 19.6714,
+                "Id": 1507772356125,
+                "y": 15.3058,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 17.7429,
+                "Id": 1507772388487,
+                "y": 15.3058,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772394619,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 0,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.9000000000000021,
+            "endPoint": {
+                "x": 19.511,
+                "Id": 1507772400777,
+                "y": 15.5058,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 18.611,
+                "Id": 1507772400777,
+                "y": 15.5058,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772404166,
+            "select": false,
+            "angle": 180,
+            "sp_wallId": 0,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 0.8680999999999948,
+            "endPoint": {
+                "x": 17.7429,
+                "Id": 1507772405207,
+                "y": 15.5058,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 18.611,
+                "Id": 1507772464396,
+                "y": 15.5058,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772434987,
+            "select": false,
+            "angle": 74.9057154188442,
+            "sp_wallId": 1507772404166,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 3.20880834111357,
+            "endPoint": {
+                "x": 18.5785,
+                "Id": 1507772438672,
+                "y": 18.6039,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 17.7429,
+                "Id": 1507772405207,
+                "y": 15.5058,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772441163,
+            "select": false,
+            "angle": 333.1720701633662,
+            "sp_wallId": 1507772434987,
+            "ep_wallId": 0,
+            "mainWall": false,
+            "distance": 1.052707162510076,
+            "endPoint": {
+                "x": 19.5179,
+                "Id": 1507772447677,
+                "y": 18.1288,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 18.5785,
+                "Id": 1507772438672,
+                "y": 18.6039,
+                "z": 0,
+                "bulge": 0
+            }
+        },
+        {
+            "Id": 1507772466622,
+            "select": false,
+            "angle": 269.8492794636927,
+            "sp_wallId": 1507772441163,
+            "ep_wallId": 1507772394619,
+            "mainWall": false,
+            "distance": 2.623009075470383,
+            "endPoint": {
+                "x": 19.511,
+                "Id": 1507772464396,
+                "y": 15.5058,
+                "z": 0,
+                "bulge": 0
+            },
+            "lowWall": false,
+            "startPoint": {
+                "x": 19.5179,
+                "Id": 1507772447677,
+                "y": 18.1288,
+                "z": 0,
+                "bulge": 0
+            }
+        }
+    ],
+    "doors": [
+        {
+            "magrin_end": 2.811800000000002,
+            "Id": 1507772130710,
+            "lines": [
+                {
+                    "Id": 1507772134473,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 20.8259,
+                        "Id": 1507772134473,
+                        "y": 20.2074,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 19.9259,
+                        "Id": 1507772134473,
+                        "y": 20.2074,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772134473,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 20.8259,
+                        "Id": 1507772134473,
+                        "y": 20.4074,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 19.9259,
+                        "Id": 1507772134473,
+                        "y": 20.4074,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772134473,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 19.9259,
+                        "Id": 1507772134473,
+                        "y": 20.4074,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 19.9259,
+                        "Id": 1507772134473,
+                        "y": 20.2074,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772134473,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 20.8259,
+                        "Id": 1507772134473,
+                        "y": 20.4074,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 20.8259,
+                        "Id": 1507772134473,
+                        "y": 20.2074,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                }
+            ],
+            "thickness": 0.2,
+            "width": 0.9,
+            "select": false,
+            "type": 2,
+            "wallId": 1507772125427,
+            "height": 2,
+            "center": {
+                "x": 20.3759,
+                "Id": 1507772134473,
+                "y": 20.3074,
+                "z": 0,
+                "bulge": 0
+            },
+            "magrin_strat": 0.6329999999999991
+        },
+        {
+            "magrin_end": 0,
+            "Id": 1507772299070,
+            "lines": [
+                {
+                    "Id": 1507772302360,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 19.6714,
+                        "Id": 1507772302360,
+                        "y": 17.1482,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 20.5714,
+                        "Id": 1507772302360,
+                        "y": 17.1482,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772302360,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 19.6714,
+                        "Id": 1507772302360,
+                        "y": 16.9482,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 20.5714,
+                        "Id": 1507772302360,
+                        "y": 16.9482,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772302360,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 20.5714,
+                        "Id": 1507772302360,
+                        "y": 16.9482,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 20.5714,
+                        "Id": 1507772302360,
+                        "y": 17.1482,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772302360,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 19.6714,
+                        "Id": 1507772302360,
+                        "y": 16.9482,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 19.6714,
+                        "Id": 1507772302360,
+                        "y": 17.1482,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                }
+            ],
+            "thickness": 0.2,
+            "width": 0.9,
+            "select": false,
+            "type": 2,
+            "wallId": 1507772294382,
+            "height": 2,
+            "center": {
+                "x": 20.1214,
+                "Id": 1507772302360,
+                "y": 17.0482,
+                "z": 0,
+                "bulge": 0
+            },
+            "magrin_strat": 3.066299999999998
+        },
+        {
+            "magrin_end": 0,
+            "Id": 1507772355219,
+            "lines": [
+                {
+                    "Id": 1507772356125,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 19.6714,
+                        "Id": 1507772356125,
+                        "y": 15.5058,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 20.5714,
+                        "Id": 1507772356125,
+                        "y": 15.5058,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772356125,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 19.6714,
+                        "Id": 1507772356125,
+                        "y": 15.3058,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 20.5714,
+                        "Id": 1507772356125,
+                        "y": 15.3058,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772356125,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 20.5714,
+                        "Id": 1507772356125,
+                        "y": 15.3058,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 20.5714,
+                        "Id": 1507772356125,
+                        "y": 15.5058,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772356125,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 19.6714,
+                        "Id": 1507772356125,
+                        "y": 15.3058,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 19.6714,
+                        "Id": 1507772356125,
+                        "y": 15.5058,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                }
+            ],
+            "thickness": 0.2,
+            "width": 0.9,
+            "select": false,
+            "type": 2,
+            "wallId": 1507772344771,
+            "height": 2,
+            "center": {
+                "x": 20.1214,
+                "Id": 1507772356125,
+                "y": 15.4058,
+                "z": 0,
+                "bulge": 0
+            },
+            "magrin_strat": 0.2544999999999966
+        },
+        {
+            "magrin_end": 0.1603999999999992,
+            "Id": 1507772394619,
+            "lines": [
+                {
+                    "Id": 1507772464397,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 19.511,
+                        "Id": 1507772464396,
+                        "y": 15.3058,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 18.611,
+                        "Id": 1507772464396,
+                        "y": 15.3058,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772464397,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 19.511,
+                        "Id": 1507772464396,
+                        "y": 15.5058,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 18.611,
+                        "Id": 1507772464396,
+                        "y": 15.5058,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772464397,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 18.611,
+                        "Id": 1507772464396,
+                        "y": 15.5058,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 18.611,
+                        "Id": 1507772464396,
+                        "y": 15.3058,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                },
+                {
+                    "Id": 1507772464397,
+                    "angle": 0,
+                    "select": false,
+                    "distance": 0,
+                    "endPoint": {
+                        "x": 19.511,
+                        "Id": 1507772464396,
+                        "y": 15.5058,
+                        "z": 0,
+                        "bulge": 0
+                    },
+                    "startPoint": {
+                        "x": 19.511,
+                        "Id": 1507772464396,
+                        "y": 15.3058,
+                        "z": 0,
+                        "bulge": 0
+                    }
+                }
+            ],
+            "thickness": 0.2,
+            "width": 0.9,
+            "select": false,
+            "type": 2,
+            "wallId": 1507772390953,
+            "height": 2,
+            "center": {
+                "x": 19.061,
+                "Id": 1507772464397,
+                "y": 15.4058,
+                "z": 0,
+                "bulge": 0
+            },
+            "magrin_strat": 0.8680999999999948
+        }
+    ],
+    "beams": [],
+    "editLine": {
+        "Id": 1507772466622,
+        "select": false,
+        "angle": 269.8492794636927,
+        "sp_wallId": 1507772441163,
+        "ep_wallId": 1507772394619,
+        "mainWall": false,
+        "distance": 2.623009075470383,
+        "endPoint": {
+            "x": 19.511,
+            "Id": 1507772464396,
+            "y": 15.5058,
+            "z": 0,
+            "bulge": 0
+        },
+        "lowWall": false,
+        "startPoint": {
+            "x": 19.5179,
+            "Id": 1507772447677,
+            "y": 18.1288,
+            "z": 0,
+            "bulge": 0
+        }
+    },
+    "pillars": [],
+    "windows": []
+}
