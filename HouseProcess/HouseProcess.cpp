@@ -58,7 +58,7 @@ void test() {
     double area = h.regions.at(0).computeArea();
     isPassed("Regin::computeArea()", abs(area - 0.5) < MIN_ERR);
     isPassed("House::findRegions()", hasPassed);
-    isPassed("Region::findCenter()", center.isEqualTo(Point(0.5, 0.5)));
+    isPassed("Region::findCenter()", center.isEqualTo(Point(0.25, 0.5)));
 
     double triArea = computeTriArea(
         Point(0, 0), Point(0, 1), Point(1, 0)

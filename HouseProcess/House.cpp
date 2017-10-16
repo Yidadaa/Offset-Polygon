@@ -26,11 +26,13 @@ vector<Region> House::findRegions() {
     vector<Region> regions; // 用于存放所有的区域
     vector<Segment> tmpLines = this->lines; // 用于存放所有的线
 
-    // 将线段的首尾颠倒
+                                            // 将线段的首尾颠倒
     auto reverseSeg = [](Segment s) {
         Point tmp = s.startPoint;
         s.startPoint = s.endPoint;
         s.endPoint = tmp;
+        s.startPoint.bulge = -s.startPoint.bulge;
+        s.endPoint.bulge = -s.endPoint.bulge;
         return s;
     };
 
@@ -131,86 +133,68 @@ Region::Region(vector<Segment> s) {
 
 /* 查找视觉中心位 */
 /* 查找策略，寻找最长切分线，切分线不能与边界有交点，而且中点在区域内
- * 取切分线中点作为视觉中心位
- */
-//Point Region::findCenter() {
-//    // 已废弃，该算法虽然效果比较好，但是算法复杂度很高，不利于维护
-//    vector<Segment> inLines;
-//    int borderNum = this->borders.size();
-//    for (int i = 0; i < int(borderNum / 2); i++) { // 开始遍历所有切分线
-//        for (int j = i + 1; j < borderNum; j++) {
-//            Segment s = Segment(
-//                this->borders.at(i).startPoint,
-//                this->borders.at(j).startPoint
-//            );
-//            // 判断这条切分线是否在边线上
-//            // TIPs: 这里使算法复杂度上升到了o(n! * n)
-//            bool isInBorder = false;
-//            for each (Segment seg in this->borders) {
-//                if (seg.isParalWith(s)) {
-//                    isInBorder = true;
-//                    break;
-//                };
-//            }
-//            if (isInBorder) continue;
-//
-//            // 判断这条线是否与边线相交
-//            vector<Point> corPoints = s.getCorWithRegion(*this);
-//            if (corPoints.size() > 0) continue;
-//
-//            inLines.push_back(s); // 保存该线
-//        }
-//    }
-//    if (inLines.size() == 0) {
-//        // TODO: 实在找不到，就用所有线段的加权中心点
-//        double min_cx = 10000;
-//        double max_cx = 0;
-//        double min_cy = 10000;
-//        double max_cy = 0;
-//        for each (auto s in this->borders) {
-//            double x = s.startPoint.x;
-//            double y = s.startPoint.y;
-//            min_cx = x < min_cx ? x : min_cx;
-//            max_cx = x > max_cx ? x : max_cx;
-//            min_cy = y < min_cy ? y : min_cy;
-//            max_cy = y > max_cy ? y : max_cy;
-//        }
-//        return Point((min_cx + max_cx) / 2, (min_cy + max_cy) / 2); // 没有符合条件的线
-//    }
-//
-//    // 开始寻找最佳切分点
-//    Point bestPoint;
-//    double maxRatio = 0;
-//    for each (Segment seg in inLines) {
-//        // 计算线段横跨矩形的面积
-//        double l = abs(seg.xRange.max - seg.xRange.min); // 长
-//        double w = abs(seg.yRange.max - seg.yRange.min); // 宽
-//        double ratio = l * w;
-//        Point center = seg.center; // 选取切分点的中点作为最佳视觉中心点
-//        bool isInRegion = center.isInRegion(*(this));
-//        if (ratio > maxRatio && isInRegion) {
-//            maxRatio = ratio;
-//            bestPoint = center;
-//        }
-//    }
-//    return bestPoint;
-//}
-
+* 取切分线中点作为视觉中心位
+*/
 Point Region::findCenter() {
-    // 直接找区域的最大矩形的中心点
-    double min_cx = 10000;
-    double max_cx = 0;
-    double min_cy = 10000;
-    double max_cy = 0;
-    for each (auto s in this->borders) {
-        double x = s.startPoint.x;
-        double y = s.startPoint.y;
-        min_cx = x < min_cx ? x : min_cx;
-        max_cx = x > max_cx ? x : max_cx;
-        min_cy = y < min_cy ? y : min_cy;
-        max_cy = y > max_cy ? y : max_cy;
+    vector<Segment> inLines;
+    int borderNum = this->borders.size();
+    for (int i = 0; i < int(borderNum / 2); i++) { // 开始遍历所有切分线
+        for (int j = i + 1; j < borderNum; j++) {
+            Segment s = Segment(
+                this->borders.at(i).startPoint,
+                this->borders.at(j).startPoint
+                );
+            // 判断这条切分线是否在边线上
+            // TIPs: 这里使算法复杂度上升到了o(n! * n)
+            bool isInBorder = false;
+            for each (Segment seg in this->borders) {
+                if (seg.isParalWith(s)) {
+                    isInBorder = true;
+                    break;
+                };
+            }
+            if (isInBorder) continue;
+
+            // 判断这条线是否与边线相交
+            vector<Point> corPoints = s.getCorWithRegion(*this);
+            if (corPoints.size() > 0) continue;
+
+            inLines.push_back(s); // 保存该线
+        }
     }
-    return Point((min_cx + max_cx) / 2, (min_cy + max_cy) / 2); // 没有符合条件的线
+    if (inLines.size() == 0) {
+        // TODO: 实在找不到，就用所有线段的加权中心点
+        double min_cx = 10000;
+        double max_cx = 0;
+        double min_cy = 10000;
+        double max_cy = 0;
+        for each (auto s in this->borders) {
+            double x = s.startPoint.x;
+            double y = s.startPoint.y;
+            min_cx = x < min_cx ? x : min_cx;
+            max_cx = x > max_cx ? x : max_cx;
+            min_cy = y < min_cy ? y : min_cy;
+            max_cy = y > max_cy ? y : max_cy;
+        }
+        return Point((min_cx + max_cx) / 2, (min_cy + max_cy) / 2); // 没有符合条件的线
+    }
+
+    // 开始寻找最佳切分点
+    Point bestPoint;
+    double maxRatio = 0;
+    for each (Segment seg in inLines) {
+        // 计算线段横跨矩形的面积
+        double l = abs(seg.xRange.max - seg.xRange.min); // 长
+        double w = abs(seg.yRange.max - seg.yRange.min); // 宽
+        double ratio = l * w;
+        Point center = seg.center; // 选取切分点的中点作为最佳视觉中心点
+        bool isInRegion = center.isInRegion(*(this));
+        if (ratio > maxRatio && isInRegion) {
+            maxRatio = ratio;
+            bestPoint = center;
+        }
+    }
+    return bestPoint;
 }
 
 /* 计算区域面积 */
@@ -229,8 +213,21 @@ double Region::computeArea() {
         return points;
     };
 
+    double arcArea = 0; // 先计算带有弧边的面积
+
     for each (Segment s in this->borders) {
         points.push_back(s.startPoint);
+        double b = abs(s.startPoint.bulge);
+        double p = s.startPoint.bulge > 0 ? 1 : -1; // 区分凸出来还是凹进去
+        if (b > MIN_ERR) {
+            double alpha = 2 * atan(b); // 二分之一角度
+            double a = s.distance / 2;
+            double R = a / sin(alpha);
+            double b = a / tan(alpha);
+            double s = 0.5 * a * b; // 计算三角形面积
+            double arc = 0.5 * alpha * pow(R, 2); // 计算扇形面积
+            arcArea += p * 2 * (arc - s); // 计算弧面切边面积
+        }
     } // 获取所有角点
 
     while (points.size() > 0) { // 不断地从多边形中选取点，切分成三角形进行消解
@@ -250,20 +247,29 @@ double Region::computeArea() {
         }
         if (points.size() == lastsize) break; // 如果没有可以选取的点了，那么跳出
     }
-    return area;
+    return area + arcArea;
 }
 
 /* 计算周长 */
 double Region::computePerimeter() {
     double perimeter = 0;
     for each (auto l in this->borders) {
-        perimeter += l.distance;
+        double b = abs(l.startPoint.bulge);
+        if (b > MIN_ERR) {
+            // 计算弧度周长
+            double alpha = 2 * atan(b); // 得到二分之一角度
+            double a = l.distance / 2;
+            double R = a / sin(alpha);
+            double arc = R * alpha; // 计算半弧长
+            perimeter += 2 * arc;
+        } else {
+            perimeter += l.distance;
+        }
     }
     return perimeter;
 };
 
-Point::Point()
-{
+Point::Point() {
     isNULL = true;
 }
 
@@ -315,7 +321,7 @@ Segment::Segment(Point sp, Point ep, string id_val) {
     center = Point(
         (this->startPoint.x + this->endPoint.x) / 2,
         (this->startPoint.y + this->endPoint.y) / 2
-    );
+        );
 }
 
 Segment::Segment(Point sp, Point ep) {
@@ -334,11 +340,11 @@ Segment::Segment(Point sp, Point ep) {
     center = Point(
         (this->startPoint.x + this->endPoint.x) / 2,
         (this->startPoint.y + this->endPoint.y) / 2
-    );
+        );
 }
 
 Segment::Segment() {
-    isNULL: true;
+isNULL: true;
 }
 
 
@@ -364,8 +370,7 @@ Point Segment::getCorWith(Segment s) {
         && isInRange(y, s.yRange)) {
         Point p = Point(x, y);
         return p;
-    }
-    else {
+    } else {
         return Point(); // 如果交点不在线段范围内，也不作数
     }
 }
@@ -374,7 +379,7 @@ Point Segment::getCorWith(Segment s) {
 vector<Point> Segment::getCorWithRegion(Region r) {
     vector<Segment> borders = r.borders;
     vector<Point> corPoints; // 交点集合
-    auto hasInSet = [] (Point p, vector<Point> pset) {
+    auto hasInSet = [](Point p, vector<Point> pset) {
         bool flag = false;
         for each (Point pi in pset) {
             flag = flag || p.isEqualTo(pi);

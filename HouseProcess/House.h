@@ -36,8 +36,7 @@ public:
 class Segment {
 public:
     // a, b, c 为直线的一般形式的三个参数
-    struct Range
-    {
+    struct Range {
         double min;
         double max;
     };
@@ -49,7 +48,7 @@ public:
     Point endPoint;
     Point center;
     bool isNULL;
-    double distance;
+    double distance; // 直线距离，而非曲线距离
     Segment();
     Segment(Point sp, Point ep, string id);
     Segment(Point sp, Point ep);
