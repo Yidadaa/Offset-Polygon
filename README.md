@@ -1,6 +1,6 @@
 # 使用文档
 
-主要包含`House`，`Segment`和`Point`类，实际过程中，要先将墙壁转换为`Segment`类，并将其中的`startPoint`和`endPoint`属性包装成`Point`类，下面是一段示例代码，演示了从 json 文件中读取数据并执行操作的过程。
+主要包含`House`，`Segment`，`Region`和`Point`类，实际过程中，要先将墙壁转换为`Segment`类，并将其中的`startPoint`和`endPoint`属性包装成`Point`类，下面是一段示例代码，演示了从 json 文件中读取数据并执行操作的过程。
 
 ```C++
 #pragma comment(lib, "lib_json.lib"); // jsoncpp的库，仅用于读取json文件
