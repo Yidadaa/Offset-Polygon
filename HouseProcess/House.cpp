@@ -1,5 +1,6 @@
 #pragma once
 #include "House.h"
+//#include "stdafx.h"
 
 #define MIN_ERR 0.00001 // 定义最小误差，用于相等计算
 /* 计算三角形面积 */
@@ -36,10 +37,13 @@ vector<Region> House::findRegions() {
     /* 删除集合中某个墙壁 */
     auto delWall = [](vector<Segment> lines, Segment seg) {
         for (auto i = lines.begin(); i != lines.end(); i++) {
-            if (i->id == seg.id) {
+            if ((i->startPoint.isEqualTo(seg.startPoint)
+                && i->endPoint.isEqualTo(seg.endPoint)) || i->id == seg.id) {
                 lines.erase(i); // 删除与seg相同id的元素
                 break;
             }
+            //i->startPoint.isEqualTo(seg.startPoint)
+            //    && i->endPoint.isEqualTo(seg.endPoint)
         }
         return lines; // 返回删除后的集合
     };
@@ -93,11 +97,14 @@ vector<Region> House::findRegions() {
                 break;
             }
             borders.push_back(nextWall); // 将下一个墙壁推入栈
+            int lastSize = tmpLines.size();
             tmpLines = delWall(tmpLines, nextWall); // 将已推入栈的墙壁删除
+            if (tmpLines.size() == lastSize) break; // 删除失败，跳出
             curWall = nextWall;
             if (nextWall.endPoint.isEqualTo(borders.at(0).startPoint)) {
                 // 形成闭环，结束
-                break;
+                // break;
+                // Tips: 这里不跳出，反而会有更好的效果，特别是当数据有问题时。
             }
         }
         if (borders.size() == 0) {
@@ -117,6 +124,8 @@ Region::Region() {
 Region::Region(vector<Segment> s) {
     borders = s;
     center = this->findCenter(); // 需要更改，不能将私有属性暴露出来
+    area = this->computeArea();
+    perimeter = this->computePerimeter();
     isNULL = false;
 }
 
@@ -124,54 +133,86 @@ Region::Region(vector<Segment> s) {
 /* 查找策略，寻找最长切分线，切分线不能与边界有交点，而且中点在区域内
  * 取切分线中点作为视觉中心位
  */
+//Point Region::findCenter() {
+//    // 已废弃，该算法虽然效果比较好，但是算法复杂度很高，不利于维护
+//    vector<Segment> inLines;
+//    int borderNum = this->borders.size();
+//    for (int i = 0; i < int(borderNum / 2); i++) { // 开始遍历所有切分线
+//        for (int j = i + 1; j < borderNum; j++) {
+//            Segment s = Segment(
+//                this->borders.at(i).startPoint,
+//                this->borders.at(j).startPoint
+//            );
+//            // 判断这条切分线是否在边线上
+//            // TIPs: 这里使算法复杂度上升到了o(n! * n)
+//            bool isInBorder = false;
+//            for each (Segment seg in this->borders) {
+//                if (seg.isParalWith(s)) {
+//                    isInBorder = true;
+//                    break;
+//                };
+//            }
+//            if (isInBorder) continue;
+//
+//            // 判断这条线是否与边线相交
+//            vector<Point> corPoints = s.getCorWithRegion(*this);
+//            if (corPoints.size() > 0) continue;
+//
+//            inLines.push_back(s); // 保存该线
+//        }
+//    }
+//    if (inLines.size() == 0) {
+//        // TODO: 实在找不到，就用所有线段的加权中心点
+//        double min_cx = 10000;
+//        double max_cx = 0;
+//        double min_cy = 10000;
+//        double max_cy = 0;
+//        for each (auto s in this->borders) {
+//            double x = s.startPoint.x;
+//            double y = s.startPoint.y;
+//            min_cx = x < min_cx ? x : min_cx;
+//            max_cx = x > max_cx ? x : max_cx;
+//            min_cy = y < min_cy ? y : min_cy;
+//            max_cy = y > max_cy ? y : max_cy;
+//        }
+//        return Point((min_cx + max_cx) / 2, (min_cy + max_cy) / 2); // 没有符合条件的线
+//    }
+//
+//    // 开始寻找最佳切分点
+//    Point bestPoint;
+//    double maxRatio = 0;
+//    for each (Segment seg in inLines) {
+//        // 计算线段横跨矩形的面积
+//        double l = abs(seg.xRange.max - seg.xRange.min); // 长
+//        double w = abs(seg.yRange.max - seg.yRange.min); // 宽
+//        double ratio = l * w;
+//        Point center = seg.center; // 选取切分点的中点作为最佳视觉中心点
+//        bool isInRegion = center.isInRegion(*(this));
+//        if (ratio > maxRatio && isInRegion) {
+//            maxRatio = ratio;
+//            bestPoint = center;
+//        }
+//    }
+//    return bestPoint;
+//}
+
 Point Region::findCenter() {
-    vector<Segment> inLines;
-    int borderNum = this->borders.size();
-    for (int i = 0; i < int(borderNum / 2); i++) { // 开始遍历所有切分线
-        for (int j = i + 1; j < borderNum; j++) {
-            Segment s = Segment(
-                this->borders.at(i).startPoint,
-                this->borders.at(j).startPoint
-            );
-            // 判断这条切分线是否在边线上
-            // TIPs: 这里使算法复杂度上升到了o(n! * n)
-            bool isInBorder = false;
-            for each (Segment seg in this->borders) {
-                if (seg.isParalWith(s)) {
-                    isInBorder = true;
-                    break;
-                };
-            }
-            if (isInBorder) continue;
-
-            // 判断这条线是否与边线相交
-            vector<Point> corPoints = s.getCorWithRegion(*this);
-            if (corPoints.size() > 0) continue;
-
-            inLines.push_back(s); // 保存该线
-        }
+    // 直接找区域的最大矩形的中心点
+    double min_cx = 10000;
+    double max_cx = 0;
+    double min_cy = 10000;
+    double max_cy = 0;
+    for each (auto s in this->borders) {
+        double x = s.startPoint.x;
+        double y = s.startPoint.y;
+        min_cx = x < min_cx ? x : min_cx;
+        max_cx = x > max_cx ? x : max_cx;
+        min_cy = y < min_cy ? y : min_cy;
+        max_cy = y > max_cy ? y : max_cy;
     }
-    if (inLines.size() == 0) {
-        return Point(); // 没有符合条件的线
-    }
-
-    // 开始寻找最佳切分点
-    Point bestPoint;
-    double maxRatio = 0;
-    for each (Segment seg in inLines) {
-        // 计算线段横跨矩形的面积
-        double l = abs(seg.xRange.max - seg.xRange.min); // 长
-        double w = abs(seg.yRange.max - seg.yRange.min); // 宽
-        double ratio = l * w;
-        Point center = seg.center; // 选取切分点的中点作为最佳视觉中心点
-        bool isInRegion = center.isInRegion(*(this));
-        if (ratio > maxRatio && isInRegion) {
-            maxRatio = ratio;
-            bestPoint = center;
-        }
-    }
-    return bestPoint;
+    return Point((min_cx + max_cx) / 2, (min_cy + max_cy) / 2); // 没有符合条件的线
 }
+
 /* 计算区域面积 */
 double Region::computeArea() {
     vector<Point> points; // 区域的所有角点
@@ -211,6 +252,15 @@ double Region::computeArea() {
     }
     return area;
 }
+
+/* 计算周长 */
+double Region::computePerimeter() {
+    double perimeter = 0;
+    for each (auto l in this->borders) {
+        perimeter += l.distance;
+    }
+    return perimeter;
+};
 
 Point::Point()
 {

@@ -69,6 +69,7 @@ public:
     Point center;
     Point findCenter();
     double computeArea();
+    double computePerimeter();
 };
 
 class House {
