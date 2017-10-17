@@ -4,6 +4,8 @@
 #include "House.h"
 #include "House.cpp"
 
+using namespace HouseProcess;
+
 void test();
 void isPassed(string name, bool t);
 

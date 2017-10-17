@@ -7,6 +7,8 @@
 #include "House.h" // 引入Hosue.h头文件
 #include <fstream>
 
+using namespace HouseProcess;
+
 int main() {
     ifstream ifs;
     ifs.open("data/data_5.json"); // 打开json文件
