@@ -2,7 +2,6 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include <minmax.h>
 
 using namespace std;
 
@@ -36,7 +35,8 @@ public:
 class Segment {
 public:
     // a, b, c 为直线的一般形式的三个参数
-    struct Range {
+    struct Range
+    {
         double min;
         double max;
     };
@@ -77,7 +77,9 @@ public:
     House();
     House(vector<Segment> lines);
     vector<Region> findRegions();
+    vector<Segment> findOutLines();
     vector<Segment> lines;
+    vector<Segment> outLines; // 外延轮廓线
     bool isNULL;
 };
 

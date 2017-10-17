@@ -1,6 +1,5 @@
 #pragma once
 #include "House.h"
-//#include "stdafx.h"
 
 #define MIN_ERR 0.00001 // 定义最小误差，用于相等计算
 /* 计算三角形面积 */
@@ -19,6 +18,7 @@ House::House(vector<Segment> lines) {
     isNULL = false;
     this->lines = lines;
     regions = this->findRegions();
+    outLines = this->findOutLines();
 }
 
 /* 寻找所有的闭合区域 */
@@ -26,7 +26,7 @@ vector<Region> House::findRegions() {
     vector<Region> regions; // 用于存放所有的区域
     vector<Segment> tmpLines = this->lines; // 用于存放所有的线
 
-                                            // 将线段的首尾颠倒
+    // 将线段的首尾颠倒
     auto reverseSeg = [](Segment s) {
         Point tmp = s.startPoint;
         s.startPoint = s.endPoint;
@@ -119,6 +119,12 @@ vector<Region> House::findRegions() {
     return regions;
 }
 
+/* 获取外延轮廓线 */
+vector<Segment> House::findOutLines() {
+    vector<Segment> outLines;
+    return outLines;
+}
+
 Region::Region() {
     isNULL = true;
 }
@@ -133,8 +139,8 @@ Region::Region(vector<Segment> s) {
 
 /* 查找视觉中心位 */
 /* 查找策略，寻找最长切分线，切分线不能与边界有交点，而且中点在区域内
-* 取切分线中点作为视觉中心位
-*/
+ * 取切分线中点作为视觉中心位
+ */
 Point Region::findCenter() {
     vector<Segment> inLines;
     int borderNum = this->borders.size();
@@ -143,7 +149,7 @@ Point Region::findCenter() {
             Segment s = Segment(
                 this->borders.at(i).startPoint,
                 this->borders.at(j).startPoint
-                );
+            );
             // 判断这条切分线是否在边线上
             // TIPs: 这里使算法复杂度上升到了o(n! * n)
             bool isInBorder = false;
@@ -269,7 +275,8 @@ double Region::computePerimeter() {
     return perimeter;
 };
 
-Point::Point() {
+Point::Point()
+{
     isNULL = true;
 }
 
@@ -314,14 +321,14 @@ Segment::Segment(Point sp, Point ep, string id_val) {
     c = sp.x * ep.y - sp.y * ep.x;
     isNULL = false;
     distance = sqrt(pow(sp.x - ep.x, 2) + pow(sp.y - ep.y, 2)); // 计算长度
-    xRange.min = min(sp.x, ep.x);
-    xRange.max = max(sp.x, ep.x);
-    yRange.min = min(sp.y, ep.y);
-    yRange.max = max(sp.y, ep.y);
+    xRange.min = sp.x < ep.x ? sp.x : ep.x;
+    xRange.max = sp.x > ep.x ? sp.x : ep.x;
+    yRange.min = sp.y < ep.y ? sp.y : ep.y;
+    yRange.max = sp.y > ep.y ? sp.y : ep.y;
     center = Point(
         (this->startPoint.x + this->endPoint.x) / 2,
         (this->startPoint.y + this->endPoint.y) / 2
-        );
+    );
 }
 
 Segment::Segment(Point sp, Point ep) {
@@ -333,18 +340,18 @@ Segment::Segment(Point sp, Point ep) {
     c = sp.x * ep.y - sp.y * ep.x;
     isNULL = false;
     distance = sqrt(pow(sp.x - ep.x, 2) + pow(sp.y - ep.y, 2)); // 计算长度
-    xRange.min = min(sp.x, ep.x);
-    xRange.max = max(sp.x, ep.x);
-    yRange.min = min(sp.y, ep.y);
-    yRange.max = max(sp.y, ep.y);
+    xRange.min = sp.x < ep.x ? sp.x : ep.x;
+    xRange.max = sp.x > ep.x ? sp.x : ep.x;
+    yRange.min = sp.y < ep.y ? sp.y : ep.y;
+    yRange.max = sp.y > ep.y ? sp.y : ep.y;
     center = Point(
         (this->startPoint.x + this->endPoint.x) / 2,
         (this->startPoint.y + this->endPoint.y) / 2
-        );
+    );
 }
 
 Segment::Segment() {
-isNULL: true;
+    isNULL: true;
 }
 
 
@@ -370,7 +377,8 @@ Point Segment::getCorWith(Segment s) {
         && isInRange(y, s.yRange)) {
         Point p = Point(x, y);
         return p;
-    } else {
+    }
+    else {
         return Point(); // 如果交点不在线段范围内，也不作数
     }
 }
@@ -379,7 +387,7 @@ Point Segment::getCorWith(Segment s) {
 vector<Point> Segment::getCorWithRegion(Region r) {
     vector<Segment> borders = r.borders;
     vector<Point> corPoints; // 交点集合
-    auto hasInSet = [](Point p, vector<Point> pset) {
+    auto hasInSet = [] (Point p, vector<Point> pset) {
         bool flag = false;
         for each (Point pi in pset) {
             flag = flag || p.isEqualTo(pi);
