@@ -9,7 +9,7 @@
 #include "House.h" // 引入Hosue.h头文件
 #include <fstream>
 
-using namespace HouseProcess;
+using namespace HouseProcess; // 注意使用HouseProcess命名空间
 
 int main() {
     ifstream ifs;
