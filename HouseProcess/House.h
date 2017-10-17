@@ -9,15 +9,15 @@ using namespace std;
 #define HOUSE_H
 
 namespace HouseProcess {
-    class Segment;
-    class Point;
-    class Region;
-    class House;
+    class YFSegment;
+    class YFPoint;
+    class YFRegion;
+    class YFHouse;
 
-    double computeTriArea(Point a, Point b, Point c);
+    double computeTriArea(YFPoint a, YFPoint b, YFPoint c);
 
     /* 点类 */
-    class Point {
+    class YFPoint {
     public:
         double x;
         double y;
@@ -25,15 +25,15 @@ namespace HouseProcess {
         string id;
         double bulge;
         bool isNULL;
-        Point();
-        Point(double x, double y, double bulge, string id);
-        Point(double x_val, double y_val);
-        bool isEqualTo(Point p);
-        bool isInRegion(Region r);
+        YFPoint();
+        YFPoint(double x, double y, double bulge, string id);
+        YFPoint(double x_val, double y_val);
+        bool isEqualTo(YFPoint p);
+        bool isInRegion(YFRegion r);
     };
 
     /* 定义一条线段 */
-    class Segment {
+    class YFSegment {
     public:
         // a, b, c 为直线的一般形式的三个参数
         struct Range {
@@ -44,42 +44,42 @@ namespace HouseProcess {
         string id;
         Range xRange;
         Range yRange;
-        Point startPoint;
-        Point endPoint;
-        Point center;
+        YFPoint startPoint;
+        YFPoint endPoint;
+        YFPoint center;
         bool isNULL;
         double distance; // 直线距离，而非曲线距离
-        Segment();
-        Segment(Point sp, Point ep, string id);
-        Segment(Point sp, Point ep);
-        Point getCorWith(Segment s);
-        vector<Point> getCorWithRegion(Region r);
-        bool isParalWith(Segment s);
+        YFSegment();
+        YFSegment(YFPoint sp, YFPoint ep, string id);
+        YFSegment(YFPoint sp, YFPoint ep);
+        YFPoint getCorWith(YFSegment s);
+        vector<YFPoint> getCorWithRegion(YFRegion r);
+        bool isParalWith(YFSegment s);
     };
 
-    class Region {
+    class YFRegion {
     public:
-        Region();
-        Region(vector<Segment> s);
-        vector<Segment> borders; // 边界集合
+        YFRegion();
+        YFRegion(vector<YFSegment> s);
+        vector<YFSegment> borders; // 边界集合
         bool isNULL;
         double area;
         double perimeter;
-        Point center;
-        Point findCenter();
+        YFPoint center;
+        YFPoint findCenter();
         double computeArea();
         double computePerimeter();
     };
 
-    class House {
+    class YFHouse {
     public:
-        vector<Region> regions;
-        House();
-        House(vector<Segment> lines);
-        vector<Region> findRegions();
-        vector<Segment> findOutLines();
-        vector<Segment> lines;
-        vector<Segment> outLines; // 外延轮廓线
+        vector<YFRegion> regions;
+        YFHouse();
+        YFHouse(vector<YFSegment> lines);
+        vector<YFRegion> findRegions();
+        vector<YFSegment> findOutLines();
+        vector<YFSegment> lines;
+        vector<YFSegment> outLines; // 外延轮廓线
         bool isNULL;
     };
 }
