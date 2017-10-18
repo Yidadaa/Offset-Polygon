@@ -55,7 +55,7 @@ namespace HouseProcess {
 
         /* 在集合中寻找与某线段连接的线段 */
         auto findNextWall = [](vector<YFSegment> lines, YFSegment seg) {
-            for each (YFSegment s in lines) {
+            for (YFSegment s : lines) {
                 if (s.startPoint.isEqualTo(seg.endPoint)
                     || s.endPoint.isEqualTo(seg.endPoint)
                     || s.startPoint.isEqualTo(seg.startPoint)
@@ -156,7 +156,7 @@ namespace HouseProcess {
                 // 判断这条切分线是否在边线上
                 // TIPs: 这里使算法复杂度上升到了o(n! * n)
                 bool isInBorder = false;
-                for each (YFSegment seg in this->borders) {
+                for (YFSegment seg : this->borders) {
                     if (seg.isParalWith(s)) {
                         isInBorder = true;
                         break;
@@ -177,7 +177,7 @@ namespace HouseProcess {
             double max_cx = 0;
             double min_cy = 10000;
             double max_cy = 0;
-            for each (auto s in this->borders) {
+            for (auto s : this->borders) {
                 double x = s.startPoint.x;
                 double y = s.startPoint.y;
                 min_cx = x < min_cx ? x : min_cx;
@@ -191,7 +191,7 @@ namespace HouseProcess {
         // 开始寻找最佳切分点
         YFPoint bestPoint;
         double maxRatio = 0;
-        for each (YFSegment seg in inLines) {
+        for (YFSegment seg : inLines) {
             // 计算线段横跨矩形的面积
             double l = abs(seg.xRange.max - seg.xRange.min); // 长
             double w = abs(seg.yRange.max - seg.yRange.min); // 宽
@@ -224,7 +224,7 @@ namespace HouseProcess {
 
         double arcArea = 0; // 先计算带有弧边的面积
 
-        for each (YFSegment s in this->borders) {
+        for (YFSegment s : this->borders) {
             points.push_back(s.startPoint);
             double b = abs(s.startPoint.bulge);
             double p = s.startPoint.bulge > 0 ? 1 : -1; // 区分凸出来还是凹进去
@@ -262,7 +262,7 @@ namespace HouseProcess {
     /* 计算周长 */
     double YFRegion::computePerimeter() {
         double perimeter = 0;
-        for each (auto l in this->borders) {
+        for (auto l : this->borders) {
             double b = abs(l.startPoint.bulge);
             if (b > MIN_ERR) {
                 // 计算弧度周长
@@ -390,13 +390,13 @@ namespace HouseProcess {
         vector<YFPoint> corPoints; // 交点集合
         auto hasInSet = [](YFPoint p, vector<YFPoint> pset) {
             bool flag = false;
-            for each (YFPoint pi in pset) {
+            for (YFPoint pi : pset) {
                 flag = flag || p.isEqualTo(pi);
                 if (flag) break;
             }
             return flag;
         };
-        for each (YFSegment s in borders) {
+        for (YFSegment s : borders) {
             YFPoint corPoint = this->getCorWith(s);
             YFPoint(1, 1);
             if (!corPoint.isNULL // 非空

@@ -26,7 +26,7 @@ int main() {
 
     auto walls = data["walls"]; // 读取json中的墙壁数据
 
-    for each (auto w in walls) {
+    for (auto w : walls) {
         auto sp = w["startPoint"];
         auto ep = w["endPoint"];
         Point spp = YFPoint(sp["x"].asDouble(), sp["y"].asDouble(), sp["bulge"].asDouble(), sp["Id"].asString()); // 将startPoint包装为Point类
