@@ -15,13 +15,13 @@ namespace HouseProcess {
     };
 
     YFHouse::YFHouse() {
-        isNULL = true;
+        this->isNULL = true;
     }
     YFHouse::YFHouse(vector<YFSegment> lines) {
-        isNULL = false;
+        this->isNULL = false;
         this->lines = lines;
-        regions = this->findRegions();
-        outLines = this->findOutLines();
+        this->regions = this->findRegions();
+        this->outLines = this->findOutLines();
     }
 
     /* 寻找所有的闭合区域 */
@@ -42,8 +42,9 @@ namespace HouseProcess {
         /* 删除集合中某个墙壁 */
         auto delWall = [](vector<YFSegment> lines, YFSegment seg) {
             for (auto i = lines.begin(); i != lines.end(); i++) {
-                if ((i->startPoint.isEqualTo(seg.startPoint)
-                    && i->endPoint.isEqualTo(seg.endPoint)) || i->id == seg.id) {
+                if ((i->startPoint.isEqualTo(seg.startPoint) && i->endPoint.isEqualTo(seg.endPoint))
+                    || (i->endPoint.isEqualTo(seg.startPoint) && i->startPoint.isEqualTo(seg.endPoint))
+                    /* || i->id == seg.id*/) { // 改动原因，防止未赋值ID的线段被错误地删除
                     lines.erase(i); // 删除与seg相同id的元素
                     break;
                 }
@@ -129,15 +130,15 @@ namespace HouseProcess {
     }
 
     YFRegion::YFRegion() {
-        isNULL = true;
+        this->isNULL = true;
     }
 
     YFRegion::YFRegion(vector<YFSegment> s) {
-        borders = s;
-        center = this->findCenter(); // 需要更改，不能将私有属性暴露出来
-        area = this->computeArea();
-        perimeter = this->computePerimeter();
-        isNULL = false;
+        this->borders = s;
+        this->center = this->findCenter(); // 需要更改，不能将私有属性暴露出来
+        this->area = this->computeArea();
+        this->perimeter = this->computePerimeter();
+        this->isNULL = false;
     }
 
     /* 查找视觉中心位 */
@@ -279,25 +280,25 @@ namespace HouseProcess {
     };
 
     YFPoint::YFPoint() {
-        isNULL = true;
+        this->isNULL = true;
     }
 
     YFPoint::YFPoint(double x_val, double y_val, double bulge_val, string id_val) {
-        x = x_val;
-        y = y_val;
-        z = 0;
-        bulge = bulge_val;
-        id = id_val;
-        isNULL = false;
+        this->x = x_val;
+        this->y = y_val;
+        this->z = 0;
+        this->bulge = bulge_val;
+        this->id = id_val;
+        this->isNULL = false;
     }
 
     YFPoint::YFPoint(double x_val, double y_val) {
-        x = x_val;
-        y = y_val;
-        z = 0;
-        bulge = 0;
-        id = "No ID";
-        isNULL = false;
+        this->x = x_val;
+        this->y = y_val;
+        this->z = 0;
+        this->bulge = 0;
+        this->id = "No ID";
+        this->isNULL = false;
     }
 
     /* 判断该点与另外一个点是否近似相等 */
@@ -315,45 +316,45 @@ namespace HouseProcess {
 
 
     YFSegment::YFSegment(YFPoint sp, YFPoint ep, string id_val) {
-        startPoint = sp;
-        endPoint = ep;
-        id = id_val;
-        a = sp.y - ep.y;
-        b = sp.x - ep.x;
-        c = sp.x * ep.y - sp.y * ep.x;
-        isNULL = false;
-        distance = sqrt(pow(sp.x - ep.x, 2) + pow(sp.y - ep.y, 2)); // 计算长度
-        xRange.min = sp.x < ep.x ? sp.x : ep.x;
-        xRange.max = sp.x > ep.x ? sp.x : ep.x;
-        yRange.min = sp.y < ep.y ? sp.y : ep.y;
-        yRange.max = sp.y > ep.y ? sp.y : ep.y;
-        center = YFPoint(
+        this->startPoint = sp;
+        this->endPoint = ep;
+        this->id = id_val;
+        this->a = sp.y - ep.y;
+        this->b = sp.x - ep.x;
+        this->c = sp.x * ep.y - sp.y * ep.x;
+        this->isNULL = false;
+        this->distance = sqrt(pow(sp.x - ep.x, 2) + pow(sp.y - ep.y, 2)); // 计算长度
+        this->xRange.min = sp.x < ep.x ? sp.x : ep.x;
+        this->xRange.max = sp.x > ep.x ? sp.x : ep.x;
+        this->yRange.min = sp.y < ep.y ? sp.y : ep.y;
+        this->yRange.max = sp.y > ep.y ? sp.y : ep.y;
+        this->center = YFPoint(
             (this->startPoint.x + this->endPoint.x) / 2,
             (this->startPoint.y + this->endPoint.y) / 2
             );
     }
 
     YFSegment::YFSegment(YFPoint sp, YFPoint ep) {
-        startPoint = sp;
-        endPoint = ep;
-        id = "No ID";
-        a = sp.y - ep.y;
-        b = sp.x - ep.x;
-        c = sp.x * ep.y - sp.y * ep.x;
-        isNULL = false;
-        distance = sqrt(pow(sp.x - ep.x, 2) + pow(sp.y - ep.y, 2)); // 计算长度
-        xRange.min = sp.x < ep.x ? sp.x : ep.x;
-        xRange.max = sp.x > ep.x ? sp.x : ep.x;
-        yRange.min = sp.y < ep.y ? sp.y : ep.y;
-        yRange.max = sp.y > ep.y ? sp.y : ep.y;
-        center = YFPoint(
+        this->startPoint = sp;
+        this->endPoint = ep;
+        this->id = "NO ID";
+        this->a = sp.y - ep.y;
+        this->b = sp.x - ep.x;
+        this->c = sp.x * ep.y - sp.y * ep.x;
+        this->isNULL = false;
+        this->distance = sqrt(pow(sp.x - ep.x, 2) + pow(sp.y - ep.y, 2)); // 计算长度
+        this->xRange.min = sp.x < ep.x ? sp.x : ep.x;
+        this->xRange.max = sp.x > ep.x ? sp.x : ep.x;
+        this->yRange.min = sp.y < ep.y ? sp.y : ep.y;
+        this->yRange.max = sp.y > ep.y ? sp.y : ep.y;
+        this->center = YFPoint(
             (this->startPoint.x + this->endPoint.x) / 2,
             (this->startPoint.y + this->endPoint.y) / 2
             );
     }
 
     YFSegment::YFSegment() {
-    isNULL: true;
+        this->isNULL = true;
     }
 
 
