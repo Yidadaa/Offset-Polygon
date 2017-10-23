@@ -24,12 +24,13 @@ namespace HouseProcess {
         this->outLines = this->findOutLines();
     }
 
+
     /* 寻找所有的闭合区域 */
     vector<YFRegion> YFHouse::findRegions() {
         vector<YFRegion> regions; // 用于存放所有的区域
-        vector<YFSegment> tmpLines = this->lines; // 用于存放所有的线
+        vector<YFSegment> tmpLines; // 用于存放所有的线
 
-                                                // 将线段的首尾颠倒
+                                    // 将线段的首尾颠倒
         auto reverseSeg = [](YFSegment s) {
             YFPoint tmp = s.startPoint;
             s.startPoint = s.endPoint;
@@ -43,9 +44,8 @@ namespace HouseProcess {
         auto delWall = [](vector<YFSegment> lines, YFSegment seg) {
             for (auto i = lines.begin(); i != lines.end(); i++) {
                 if ((i->startPoint.isEqualTo(seg.startPoint) && i->endPoint.isEqualTo(seg.endPoint))
-                    || (i->endPoint.isEqualTo(seg.startPoint) && i->startPoint.isEqualTo(seg.endPoint))
-                    /* || i->id == seg.id*/) { // 改动原因，防止未赋值ID的线段被错误地删除
-                    lines.erase(i); // 删除与seg相同id的元素
+                    || (i->endPoint.isEqualTo(seg.startPoint) && i->startPoint.isEqualTo(seg.endPoint))) {
+                    lines.erase(i);
                     break;
                 }
                 //i->startPoint.isEqualTo(seg.startPoint)
@@ -66,6 +66,22 @@ namespace HouseProcess {
             }
             return YFSegment();
         };
+        //初始化tmpLines，将所有孤立墙壁剔除
+        for (YFSegment seg : this->lines) {
+            int sFlag = 0;
+            int eFlag = 0;
+            for (YFSegment s : this->lines) {
+                if (s.startPoint.isEqualTo(seg.startPoint)
+                    || s.endPoint.isEqualTo(seg.startPoint)) {
+                    sFlag++;
+                } else if (s.startPoint.isEqualTo(seg.endPoint)
+                    || s.endPoint.isEqualTo(seg.endPoint)) {
+                    eFlag++;
+                }
+            }
+            // 孤立墙壁必有一个点与其他点都不重叠
+            if (sFlag > 0 && eFlag > 0) tmpLines.push_back(seg);
+        }
 
         while (tmpLines.size() > 0) {
             YFSegment curWall = tmpLines.at(0);
@@ -98,8 +114,6 @@ namespace HouseProcess {
                     }
                 } else {
                     // 找不到下一个相邻墙壁了，也结束
-                    // TIPs: 可优化，将多余墙壁删除，但有风险，如果区域不是闭环的话，
-                    //       区域将无法被找到。
                     break;
                 }
                 borders.push_back(nextWall); // 将下一个墙壁推入栈
@@ -109,7 +123,7 @@ namespace HouseProcess {
                 curWall = nextWall;
                 if (nextWall.endPoint.isEqualTo(borders.at(0).startPoint)) {
                     // 形成闭环，结束
-                    // break;
+                    //break;
                     // Tips: 这里不跳出，反而会有更好的效果，特别是当数据有问题时。
                 }
             }
