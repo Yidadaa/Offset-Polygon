@@ -32,11 +32,17 @@ namespace HouseProcess {
 
                                     // 将线段的首尾颠倒
         auto reverseSeg = [](YFSegment s) {
+            auto negNum = [](double n) { // 取相反数
+                if (abs(n) < MIN_ERR) return n;
+                else {
+                    return -n;
+                }
+            };
             YFPoint tmp = s.startPoint;
             s.startPoint = s.endPoint;
             s.endPoint = tmp;
-            s.startPoint.bulge = -s.startPoint.bulge;
-            s.endPoint.bulge = -s.endPoint.bulge;
+            s.startPoint.bulge = negNum(s.startPoint.bulge);
+            s.endPoint.bulge = negNum(s.endPoint.bulge);
             return s;
         };
 
@@ -48,8 +54,6 @@ namespace HouseProcess {
                     lines.erase(i);
                     break;
                 }
-                //i->startPoint.isEqualTo(seg.startPoint)
-                //    && i->endPoint.isEqualTo(seg.endPoint)
             }
             return lines; // 返回删除后的集合
         };
@@ -86,6 +90,7 @@ namespace HouseProcess {
         while (tmpLines.size() > 0) {
             YFSegment curWall = tmpLines.at(0);
             vector<YFSegment> borders; // 用来存放墙壁
+            bool isClosure = false; // 是否是闭合区域
             borders.push_back(curWall);
             tmpLines = delWall(tmpLines, curWall);
             while (tmpLines.size() > 0) { // 不断地从所有墙壁中找出首尾相连的墙
@@ -123,14 +128,16 @@ namespace HouseProcess {
                 curWall = nextWall;
                 if (nextWall.endPoint.isEqualTo(borders.at(0).startPoint)) {
                     // 形成闭环，结束
-                    //break;
                     // Tips: 这里不跳出，反而会有更好的效果，特别是当数据有问题时。
+                    isClosure = true;
+                    break;
                 }
             }
+            YFRegion region(borders);
             if (borders.size() == 0) {
                 break; // 没有收集到区域，停止循环
-            } else {
-                regions.push_back(YFRegion(borders)); // 将收集到的区域入栈
+            } else if (isClosure && region.area > MIN_ERR) { // 仅收集闭合区域
+                regions.push_back(region); // 将收集到的区域入栈
                 borders.clear();
             }
         }
@@ -241,8 +248,10 @@ namespace HouseProcess {
 
         for (YFSegment s : this->borders) {
             points.push_back(s.startPoint);
-            double b = abs(s.startPoint.bulge);
-            double p = s.startPoint.bulge > 0 ? 1 : -1; // 区分凸出来还是凹进去
+            double sb = abs(s.startPoint.bulge);
+            double eb = abs(s.endPoint.bulge);
+            double b = sb > eb ? sb : eb; // 弧线反转之后，必有一个点的凸度不为0
+            double p = (s.startPoint.bulge + s.endPoint.bulge) > -MIN_ERR ? 1 : -1; // 区分凸出来还是凹进去
             if (b > MIN_ERR) {
                 double alpha = 2 * atan(b); // 二分之一角度
                 double a = s.distance / 2;
@@ -278,7 +287,9 @@ namespace HouseProcess {
     double YFRegion::computePerimeter() {
         double perimeter = 0;
         for (auto l : this->borders) {
-            double b = abs(l.startPoint.bulge);
+            double sb = abs(l.startPoint.bulge);
+            double eb = abs(l.endPoint.bulge);
+            double b = sb > eb ? sb : eb; // 弧线反转之后，必有一个点的凸度不为0
             if (b > MIN_ERR) {
                 // 计算弧度周长
                 double alpha = 2 * atan(b); // 得到二分之一角度
