@@ -41,8 +41,9 @@ namespace HouseProcess {
             YFPoint tmp = s.startPoint;
             s.startPoint = s.endPoint;
             s.endPoint = tmp;
-            s.startPoint.bulge = negNum(s.startPoint.bulge);
-            s.endPoint.bulge = negNum(s.endPoint.bulge);
+            // 始终是有bulge的边指向无bulge的边，所以无需变换bulge
+            //s.startPoint.bulge = negNum(s.startPoint.bulge);
+            //s.endPoint.bulge = negNum(s.endPoint.bulge);
             return s;
         };
 
@@ -244,15 +245,39 @@ namespace HouseProcess {
             return points;
         };
 
+        /* 判断某弓形是凸出去还是凹进来 */
+        auto arcDirection = [](YFSegment curSeg, YFSegment nextSeg) {
+            double vector_1[2] = { curSeg.endPoint.x - curSeg.startPoint.x, curSeg.endPoint.y - curSeg.startPoint.y }; // 向量化线段
+            double vector_2[2] = { nextSeg.endPoint.x - nextSeg.startPoint.x, nextSeg.endPoint.y - nextSeg.startPoint.y };
+            return vector_1[0] * vector_2[1] > vector_1[1] * vector_2[0]; // 如果为true，那么就是逆时针；如果为false，那么就是逆时针
+        };
+
+        /* 判断整个区域的顺逆方向 */
+        int cw = 0; // 顺时针方向的角 clockwise
+        int anticw = 0; // 逆时针方向的角 anticlockwise
+        for (int i = 0; i < this->borders.size() - 1; i++) {
+            if (arcDirection(this->borders.at(i), this->borders.at(i + 1))) {
+                anticw++;
+            } else cw++;
+        }
+
+        int arcDirect = anticw > cw ? 1 : -1; // 如果为1，那么总体为逆时针；如果为负，那么总体为-1
+
         double arcArea = 0; // 先计算带有弧边的面积
 
-        for (YFSegment s : this->borders) {
+        for (int i = 0; i < this->borders.size(); i++) {
+            YFSegment s = this->borders.at(i);
             points.push_back(s.startPoint);
             double sb = abs(s.startPoint.bulge);
             double eb = abs(s.endPoint.bulge);
             double b = sb > eb ? sb : eb; // 弧线反转之后，必有一个点的凸度不为0
-            double p = (s.startPoint.bulge + s.endPoint.bulge) > -MIN_ERR ? 1 : -1; // 区分凸出来还是凹进去
             if (b > MIN_ERR) {
+                int p = 1;
+                if (sb > eb) {
+                    p = arcDirect * (s.startPoint.bulge > 0 ? 1 : -1); // 如果弧的方向与总体方向一致，那么就应该加上弓形面积
+                } else {
+                    p = arcDirect * (s.endPoint.bulge > 0 ? -1 : 1); // 否则就减去弓形面积
+                }
                 double alpha = 2 * atan(b); // 二分之一角度
                 double a = s.distance / 2;
                 double R = a / sin(alpha);
