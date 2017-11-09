@@ -2,6 +2,8 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <algorithm>
+
 
 using namespace std;
 
@@ -13,8 +15,6 @@ namespace HouseProcess {
     class YFPoint;
     class YFRegion;
     class YFHouse;
-
-    double computeTriArea(YFPoint a, YFPoint b, YFPoint c);
 
     /* 点类 */
     class YFPoint {
@@ -69,6 +69,7 @@ namespace HouseProcess {
         YFPoint findCenter();
         double computeArea();
         double computePerimeter();
+        vector<YFPoint> getCorWithRegion(YFRegion r); // 计算两个区域的交点
     };
 
     class YFHouse {
@@ -78,9 +79,13 @@ namespace HouseProcess {
         YFHouse(vector<YFSegment> lines);
         vector<YFRegion> findRegions();
         vector<YFSegment> findOutLines();
+        vector<YFSegment> findInnerLiners();
         vector<YFSegment> lines;
         vector<YFSegment> outLines; // 外延轮廓线
+        vector<YFSegment> innerLines; // 中墙线
         bool isNULL;
     };
+
+    double computeTriArea(YFPoint a, YFPoint b, YFPoint c);
 }
 #endif

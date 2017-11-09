@@ -2,6 +2,7 @@
 #include "House.h"
 
 #define MIN_ERR 0.00001 // 定义最小误差，用于相等计算
+#define PI 3.14159265358 // 预定义π值
 
 namespace HouseProcess {
 
@@ -22,6 +23,7 @@ namespace HouseProcess {
         this->lines = lines;
         this->regions = this->findRegions();
         this->outLines = this->findOutLines();
+        this->innerLines = this->findInnerLiners();
     }
 
 
@@ -148,7 +150,339 @@ namespace HouseProcess {
     /* 获取外延轮廓线 */
     vector<YFSegment> YFHouse::findOutLines() {
         vector<YFSegment> outLines;
+        vector<YFSegment> lines = this->lines;
+        vector<YFRegion> regions = this->regions;
+        const double d = 0.35; // 这里可以设置墙壁厚度
+
+        vector<YFRegion> outRegions;
+        vector<YFPoint> allPoints; // 所有用来计算外线的点都放在这里
+
+                                   /* 计算某点的极坐标表示，接收直角坐标，返回极坐标中的theta角 */
+        auto computeTheta = [](double x, double y) {
+            double theta = 0;
+            if (abs(x) < MIN_ERR) {
+                // x = 0
+                if (abs(y) < MIN_ERR) {
+                    // x = 0, y = 0
+                    return 0.0;
+                } else if (y > 0) {
+                    // x = 0, y > 0
+                    return PI / 2;
+                } else {
+                    // x = 0. y < 0
+                    return -PI / 2;
+                }
+            } else if (x > 0) {
+                // x > 0
+                return atan(y / x);
+            } else {
+                // x < 0
+                if (y < 0) {
+                    // y < 0
+                    return atan(y / x) - PI;
+                } else {
+                    // y >= 0
+                    return atan(y / x) + PI;
+                }
+            }
+        };
+
+        for (auto r : regions) {
+            // 对每一个region计算外边线
+            vector<YFPoint> outPoints; // 将所有角平分线上的点保存下来
+            int borderCount = r.borders.size();
+            for (int i = 0; i < borderCount; i++) {
+                YFSegment curSeg = r.borders.at(i);
+                YFSegment nextSeg = r.borders.at((i + 1) % borderCount);
+                YFPoint sp, mp, ep; // 开始点，中间点，结束点
+                if (curSeg.endPoint.isEqualTo(nextSeg.startPoint)) {
+                    sp = curSeg.startPoint;
+                    mp = curSeg.endPoint;
+                    ep = nextSeg.endPoint;
+                } else if (curSeg.endPoint.isEqualTo(nextSeg.endPoint)) {
+                    sp = curSeg.startPoint;
+                    mp = curSeg.endPoint;
+                    ep = nextSeg.startPoint;
+                } else if (curSeg.startPoint.isEqualTo(nextSeg.startPoint)) {
+                    sp = curSeg.endPoint;
+                    mp = curSeg.startPoint;
+                    ep = nextSeg.endPoint;
+                } else if (curSeg.startPoint.isEqualTo(nextSeg.endPoint)) {
+                    sp = curSeg.endPoint;
+                    mp = curSeg.startPoint;
+                    ep = nextSeg.startPoint;
+                }
+                // 开始计算角平分线上的点，此时以mp为坐标原点进行计算
+                double oa[2] = { sp.x - mp.x, sp.y - mp.y };
+                double ob[2] = { ep.x - mp.x, ep.y - mp.y };
+                double thetaOA = computeTheta(oa[0], oa[1]); // 计算点a的极坐标角度
+                double thetaOB = computeTheta(ob[0], ob[1]); // 计算点b的极坐标角度
+                auto lenOfVector = [](double vector[]) { return sqrt(pow(vector[0], 2) + pow(vector[1], 2)); }; // 计算向量模长
+                double alpha = acos((oa[0] * ob[0] + oa[1] * ob[1]) / (lenOfVector(oa) * lenOfVector(ob))); // oa与ob的夹角
+                                                                                                            // 根据a和b的极坐标，可以计算出两者角平分线上的任意一点坐标
+                double rho = d / sin(alpha / 2); // 计算点p的极坐标的r
+                double theta1 = (thetaOA + thetaOB) / 2; // 角平分线上的点
+                double theta2 = theta1 + PI; // 角平分线延长线上的点
+                YFPoint p1(rho * cos(theta1) + mp.x, rho * sin(theta1) + mp.y); // 需要加上mp的值进行复原操作
+                YFPoint p2(rho * cos(theta2) + mp.x, rho * sin(theta2) + mp.y);
+                // 判断p1和p2谁在区域内，取不在区域内的作为选中的点
+                YFPoint p = p1.isInRegion(r) ? p2 : p1;
+                outPoints.push_back(p); // 将点p收集起来
+            }
+            int pointCount = outPoints.size();
+            vector<YFSegment> regionOutLines;
+            for (int i = 0; i < pointCount; i++) {
+                regionOutLines.push_back(YFSegment(outPoints.at(i), outPoints.at((i + 1) % pointCount))); // 将所有点连起来，作为外边线
+            }
+            outRegions.push_back(YFRegion(regionOutLines)); // 将区域收集起来
+        }
+
+        /* 将n点集按坐标排序 */
+        auto compare = [](YFPoint a, YFPoint b) {
+            if (abs(a.x - b.x) < MIN_ERR) return a.y < b.y;
+            else return a.x < b.x;
+        };
+
+        if (outRegions.size() > 1) {
+            // 开始计算所有区域之间的交点
+            vector<YFPoint> corPoints;
+            outLines.clear();
+            for (int i = 0; i < outRegions.size(); i++) {
+                auto curRegion = outRegions.at(i);
+                for (auto l : curRegion.borders) { // 对于当前区域的每一个边界，都计算其与其他区域的交点
+                    vector<YFPoint> corPts; // 用于存放当前边界与其他的交点
+                    vector<YFRegion> corRegions; // 用于存放与当前边界有交点的区域
+                    for (int j = 0; j < outRegions.size(); j++) {
+                        if (j == i) continue;
+                        auto nextRegion = outRegions.at(j);
+                        auto regionCorPts = l.getCorWithRegion(nextRegion);
+                        if (regionCorPts.size() > 0) {
+                            corPts.insert(corPts.end(), regionCorPts.begin(), regionCorPts.end()); // 将所有交点收集起来
+                            corRegions.push_back(nextRegion); // 将有交点的区域也收集起来
+                        }
+                    }
+                    if (corPts.size() > 0) { // 存在交点时，进行合并运算
+                        corPts.push_back(l.startPoint);
+                        corPts.push_back(l.endPoint);
+                        corPoints.insert(corPoints.end(), corPts.begin(), corPts.end()); // 保存交点
+                                                                                         // 对所有点进行排序，排序之后取子线段，如果线段中点在区域外，则保存线段
+                        sort(corPts.begin(), corPts.end(), compare);
+                        for (int k = 0; k < corPts.size() - 1; k++) { // 将排过序的点顺次连起来
+                            YFSegment tmpSeg(corPts.at(k), corPts.at(k + 1));
+                            // 判断连起来的线段是否在相交区域外
+                            bool isInRegion = false;
+                            for (int index = 0; index < this->regions.size(); index++) {
+                                auto r = this->regions.at(index);
+                                isInRegion = isInRegion || tmpSeg.center.isInRegion(r) || tmpSeg.startPoint.isInRegion(r) || tmpSeg.endPoint.isInRegion(r);
+                            }
+                            if (!isInRegion) { // 若在区域外，则判定其为边界
+                                outLines.push_back(tmpSeg);
+                            }
+                        }
+                    } else {
+                        // 如果没有交点，证明这条边界不需要合并
+                        bool isInRegion = false;
+                        for (int index = 0; index < this->regions.size(); index++) {
+                            auto r = this->regions.at(index);
+                            isInRegion = isInRegion || l.center.isInRegion(r) || l.startPoint.isInRegion(r) || l.endPoint.isInRegion(r);;
+                        }
+                        if (!isInRegion) outLines.push_back(l);
+                    }
+                }
+            }
+        } else if (outRegions.size() == 1) {
+            // 如果只有一个区域，则不需要计算交点，直接将外部区域的边线返回即可
+            outLines = outRegions.begin()->borders;
+        }
+
+        if (outLines.size() > 0) {
+            // 对outLine中处于同一直线上的线段进行合并
+            // TODO
+        }
+
         return outLines;
+    }
+
+    /* 计算中墙线 */
+    vector<YFSegment> YFHouse::findInnerLiners() {
+        vector<YFSegment> allLines;
+        vector<YFSegment> allInLines;
+        allLines.insert(allLines.end(), this->outLines.begin(), this->outLines.end()); // 将外线放进来
+        for (auto r : this->regions) {
+            allInLines.insert(allInLines.end(), r.borders.begin(), r.borders.end()); // 将各区域的内线放进来
+        }
+        allLines.insert(allLines.end(), allInLines.begin(), allInLines.end());
+
+        struct wrapLine {
+            int srcIndex; // 线段在allLines中的索引
+            int paraIndex; // 与此线段平行的线段在allLines中的索引
+            YFSegment midLine; // 两线段的中线
+        };
+
+        vector<wrapLine> wrapLines(allLines.size());
+        vector<YFSegment> innerLines;
+
+        /* 判断两直线是否在同一直线上 */
+        auto isInSameLine = [](YFSegment a, YFSegment b) {
+            if (!a.isParalWith(b)) {
+                return false;
+            } else {
+                bool isInSameLine = abs(a.a * b.b - a.b * b.a) < MIN_ERR &&
+                    abs(a.a * b.c - a.c * b.a) < MIN_ERR &&
+                    abs(a.b * b.c - a.c * b.b) < MIN_ERR;
+                return isInSameLine;
+            }
+        };
+
+        /* 将n点集按坐标排序 */
+        auto compare = [](YFPoint a, YFPoint b) {
+            if (abs(a.x - b.x) < MIN_ERR) return a.y < b.y;
+            else return a.x < b.x;
+        };
+
+        /* 从小到大将点按坐标排序 */
+        auto sortPoints = [compare](YFPoint a, YFPoint b) {
+            vector<YFPoint> arr;
+            arr.push_back(a);
+            arr.push_back(b);
+            sort(arr.begin(), arr.end(), compare);
+            return arr;
+        };
+
+        /* 计算两平行直线间距离 */
+        auto computeDistanceOfLines = [](YFSegment a, YFSegment b) {
+            if (a.isParalWith(b)) {
+                double rate;
+                if (abs(a.a) > MIN_ERR) {
+                    rate = b.a / a.a;
+                } else if (abs(a.b) > MIN_ERR) {
+                    rate = b.b / a.b;
+                } else rate = 10000;
+                return abs(a.c * rate - b.c) / sqrt(pow(b.a, 2) + pow(b.b, 2));
+            }
+            return 10000.0;
+        };
+
+        /* 计算两条直线的交点 */
+        auto computeCorOfLines = [isInSameLine](YFSegment a, YFSegment b) {
+            double der = a.a * b.b - a.b * b.a;
+            if (a.isParalWith(b) && !isInSameLine(a, b)) return YFPoint(); // a, b 平行不共线，不进行计算
+            double x = (a.b * b.c - a.c * b.b) / der;
+            double y = (a.a * b.c - a.c * b.a) / der; // 计算出交点坐标值
+            return YFPoint(x, y);
+        };
+
+        /* 计算某条线段在另一条线上的投影(a在b上的投影) */
+        auto computeRateOfLines = [sortPoints, computeDistanceOfLines](YFSegment a, YFSegment b) {
+            if (a.isParalWith(b)) {
+                double len = a.distance;
+                vector<YFPoint> m = sortPoints(a.startPoint, a.endPoint);
+                vector<YFPoint> n = sortPoints(b.startPoint, b.endPoint);
+                double v1[2] = { m.at(1).x - m.at(0).x, m.at(1).y - m.at(0).y };
+                double v2[2] = { n.at(0).x - m.at(0).x, n.at(0).y - m.at(0).y };
+                double cosAlpha1 = (v1[0] * v2[0] + v1[1] * v2[1]) / sqrt(pow(v1[0], 2) + pow(v1[1], 2)) / sqrt(pow(v2[0], 2) + pow(v2[1], 2)); // 计算夹角的cos值
+                if (cosAlpha1 > 0) len -= cosAlpha1 * sqrt(pow(v2[0], 2) + pow(v2[1], 2));
+                double v3[2] = { m.at(0).x - m.at(1).x, m.at(0).y - m.at(1).y };
+                double v4[2] = { n.at(1).x - m.at(1).x, n.at(1).y - m.at(1).y };
+                double cosAlpha2 = (v3[0] * v4[0] + v3[1] * v4[1]) / sqrt(pow(v3[0], 2) + pow(v3[1], 2)) / sqrt(pow(v4[0], 2) + pow(v4[1], 2)); // 计算夹角的cos值
+                if (cosAlpha2 > 0) len -= cosAlpha2 * sqrt(pow(v4[0], 2) + pow(v4[1], 2));
+                return len / a.distance;
+            }
+            return 0.0;
+        };
+
+        /* 寻找某条线的中线 */
+        auto findInnerLine = [allLines, isInSameLine, computeCorOfLines,
+            computeRateOfLines, computeDistanceOfLines, sortPoints](YFSegment curLine) {
+            int nearestIndex = -1;
+            double maxRate = -10000;
+            for (int j = 0; j < allLines.size(); j++) {
+                auto tmpLine = allLines.at(j);
+                if (isInSameLine(curLine, tmpLine)) continue; // 不能在同一直线上
+                if (curLine.distance < 0.1 || tmpLine.distance < 0.1) continue;
+                if (curLine.isParalWith(tmpLine)) {
+                    double theDistance = computeDistanceOfLines(curLine, tmpLine);
+                    double theRate = computeRateOfLines(curLine, tmpLine);
+                    if (theRate > maxRate && theDistance < 0.8 && theDistance > 0 && theRate > 0 && theRate < 1.01) {
+                        nearestIndex = j;
+                        maxRate = theRate;
+                    }
+                }
+            }
+            if (nearestIndex >= 0) {
+                vector<YFPoint> a = sortPoints(curLine.startPoint, curLine.endPoint);
+                auto nLine = allLines.at(nearestIndex);
+                vector<YFPoint> b = sortPoints(nLine.startPoint, nLine.endPoint);
+                YFPoint sp((a.at(0).x + b.at(0).x) / 2, (a.at(0).y + b.at(0).y) / 2);
+                YFPoint ep((a.at(1).x + b.at(1).x) / 2, (a.at(1).y + b.at(1).y) / 2);
+                //innerLines.push_back(YFSegment(curLine.center, nLine.center));
+                return YFSegment(sp, ep);
+            }
+            return YFSegment();
+        };
+
+        for (auto r : this->regions) {
+            vector<YFSegment> innerLinesOfRegion;
+            for (auto l : r.borders) innerLinesOfRegion.push_back(findInnerLine(l)); // 找到对应的中线
+            for (int i = 0; i < r.borders.size(); i++) {
+                int nextIndex = (i + 1) % r.borders.size();
+                auto curLine = r.borders.at(i); // 当前线段
+                auto curInnerLine = innerLinesOfRegion.at(i); // 当前线段中线
+                auto nextLine = r.borders.at(nextIndex); // 下一线段
+                auto nextInnerLine = innerLinesOfRegion.at(nextIndex); // 下一线段中线
+                YFPoint linePoint; // 两条边缘的公共点
+                if (curLine.endPoint.isEqualTo(nextLine.startPoint) || curLine.endPoint.isEqualTo(nextLine.endPoint)) {
+                    linePoint = curLine.endPoint;
+                } else linePoint = curLine.startPoint;
+
+                if (curInnerLine.isNULL || nextInnerLine.isNULL) { //如果其中一条线无法找到对应的中线
+                    continue;
+                }
+                if (isInSameLine(curInnerLine, nextInnerLine)) {
+                    // 如果当前中线与下一条内线共线，那么直接将两条线连在一起
+                    vector<YFPoint> edgePoints = {
+                        curInnerLine.startPoint, curInnerLine.endPoint,
+                        nextInnerLine.startPoint, nextInnerLine.endPoint
+                    };
+                    sort(edgePoints.begin(), edgePoints.end(), compare); // 将两条线的端点进行排序
+                    YFSegment combineLine = YFSegment(edgePoints.at(0), edgePoints.at(3));
+                    innerLinesOfRegion.at(i) = combineLine; // 更新对应的中线
+                    innerLinesOfRegion.at(nextIndex) = combineLine;
+                } else {
+                    YFPoint corPoint = computeCorOfLines(curInnerLine, nextInnerLine); // 计算两条中线的交点
+                    if (corPoint.isNULL) continue; // 没有交点，直接跳过
+                    vector<YFSegment> tmpArr = { curInnerLine, nextInnerLine };
+                    int index[2] = { i, nextIndex };
+                    for (int k = 0; k < tmpArr.size(); k++) {
+                        auto innerLine = tmpArr.at(k);
+                        if ((corPoint.x < innerLine.xRange.max && corPoint.x > innerLine.xRange.min) ||
+                            (corPoint.y < innerLine.yRange.max && corPoint.y > innerLine.yRange.min)) {
+                            // 如果点在直线的范围内
+                            //double v1[2] = { linePoint.x - corPoint.x, linePoint.y - corPoint.y };
+                            double v1[2] = { innerLine.endPoint.x - corPoint.x, innerLine.endPoint.y - corPoint.y };
+                            double v2[2] = { innerLine.startPoint.x - corPoint.x, innerLine.startPoint.y - corPoint.y };
+                            YFPoint otherPoint;
+                            //if (v1[0] * v2[0] - v2[1] * v2[1] < 0) otherPoint = innerLine.endPoint;
+                            //else otherPoint = innerLine.startPoint;
+                            if (pow(v1[0], 2) + pow(v1[1], 2) < pow(v2[0], 2) + pow(v2[1], 2)) otherPoint = innerLine.startPoint;
+                            else otherPoint = innerLine.endPoint;
+                            innerLinesOfRegion.at(index[k]) = YFSegment(corPoint, otherPoint);
+                        } else {
+                            // 如果点在直线范围外
+                            vector<YFPoint> edgePoints = {
+                                innerLine.startPoint, innerLine.endPoint,
+                                corPoint
+                            };
+                            sort(edgePoints.begin(), edgePoints.end(), compare); // 将两条线的端点进行排序
+                            YFSegment combineLine = YFSegment(edgePoints.at(0), edgePoints.at(2));
+                            innerLinesOfRegion.at(index[k]) = combineLine; // 更新对应的中线
+                        }
+                    }
+                }
+            }
+            innerLines.insert(innerLines.end(), innerLinesOfRegion.begin(), innerLinesOfRegion.end());
+        }
+        return innerLines;
     }
 
     YFRegion::YFRegion() {
@@ -328,6 +662,17 @@ namespace HouseProcess {
         }
         return perimeter;
     };
+
+    /* 计算当前区域与指定区域的交点 */
+    vector<YFPoint> YFRegion::getCorWithRegion(YFRegion r) {
+        vector<YFPoint> regionCorPoints;
+        for (YFSegment l : this->borders) {
+            vector<YFPoint> lineCorPoints = l.getCorWithRegion(r);
+            if (lineCorPoints.size() == 0) continue;
+            regionCorPoints.insert(regionCorPoints.end(), lineCorPoints.begin(), lineCorPoints.end()); // 将交点保存起来
+        }
+        return regionCorPoints;
+    }
 
     YFPoint::YFPoint() {
         this->isNULL = true;
