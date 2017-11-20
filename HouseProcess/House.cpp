@@ -18,17 +18,18 @@ namespace HouseProcess {
     YFHouse::YFHouse() {
         this->isNULL = true;
     }
-    YFHouse::YFHouse(vector<YFSegment> lines) {
+    YFHouse::YFHouse(vector<YFSegment> lines, double thickness) {
         this->isNULL = false;
         this->lines = lines;
-        this->regions = this->findRegions();
+        this->outWallThickness = thickness;
+        this->regions = this->findRegions(lines);
         this->outLines = this->findOutLines();
         this->innerLines = this->findInnerLiners();
     }
 
 
     /* 寻找所有的闭合区域 */
-    vector<YFRegion> YFHouse::findRegions() {
+    vector<YFRegion> YFHouse::findRegions(vector<YFSegment> lines) {
         vector<YFRegion> regions; // 用于存放所有的区域
         vector<YFSegment> tmpLines; // 用于存放所有的线
 
@@ -74,10 +75,10 @@ namespace HouseProcess {
             return YFSegment();
         };
         //初始化tmpLines，将所有孤立墙壁剔除
-        for (YFSegment seg : this->lines) {
+        for (YFSegment seg : lines) {
             int sFlag = 0;
             int eFlag = 0;
-            for (YFSegment s : this->lines) {
+            for (YFSegment s : lines) {
                 if (s.startPoint.isEqualTo(seg.startPoint)
                     || s.endPoint.isEqualTo(seg.startPoint)) {
                     sFlag++;
@@ -152,7 +153,7 @@ namespace HouseProcess {
         vector<YFSegment> outLines;
         vector<YFSegment> lines = this->lines;
         vector<YFRegion> regions = this->regions;
-        const double d = 0.35; // 这里可以设置墙壁厚度
+        const double d = this->outWallThickness; // 这里可以设置墙壁厚度
 
         vector<YFRegion> outRegions;
         vector<YFPoint> allPoints; // 所有用来计算外线的点都放在这里
@@ -227,6 +228,7 @@ namespace HouseProcess {
                 YFPoint p2(rho * cos(theta2) + mp.x, rho * sin(theta2) + mp.y);
                 // 判断p1和p2谁在区域内，取不在区域内的作为选中的点
                 YFPoint p = p1.isInRegion(r) ? p2 : p1;
+                p.bulge = mp.bulge; // 保持弧线一致
                 outPoints.push_back(p); // 将点p收集起来
             }
             int pointCount = outPoints.size();
@@ -403,7 +405,7 @@ namespace HouseProcess {
                 if (curLine.isParalWith(tmpLine)) {
                     double theDistance = computeDistanceOfLines(curLine, tmpLine);
                     double theRate = computeRateOfLines(curLine, tmpLine);
-                    if (theRate > maxRate && theDistance < 0.8 && theDistance > 0 && theRate > 0 && theRate < 1.01) {
+                    if (theRate > maxRate && theDistance < 0.9 && theDistance > 0 && theRate > 0 && theRate < 1.01) {
                         nearestIndex = j;
                         maxRate = theRate;
                     }
@@ -415,7 +417,8 @@ namespace HouseProcess {
                 vector<YFPoint> b = sortPoints(nLine.startPoint, nLine.endPoint);
                 YFPoint sp((a.at(0).x + b.at(0).x) / 2, (a.at(0).y + b.at(0).y) / 2);
                 YFPoint ep((a.at(1).x + b.at(1).x) / 2, (a.at(1).y + b.at(1).y) / 2);
-                //innerLines.push_back(YFSegment(curLine.center, nLine.center));
+                if (abs(curLine.startPoint.bulge) > MIN_ERR) sp.bulge = curLine.startPoint.bulge; // 更新对应的弧线
+                                                                                                  //innerLines.push_back(YFSegment(curLine.center, nLine.center));
                 return YFSegment(sp, ep);
             }
             return YFSegment();
@@ -458,12 +461,9 @@ namespace HouseProcess {
                         if ((corPoint.x < innerLine.xRange.max && corPoint.x > innerLine.xRange.min) ||
                             (corPoint.y < innerLine.yRange.max && corPoint.y > innerLine.yRange.min)) {
                             // 如果点在直线的范围内
-                            //double v1[2] = { linePoint.x - corPoint.x, linePoint.y - corPoint.y };
                             double v1[2] = { innerLine.endPoint.x - corPoint.x, innerLine.endPoint.y - corPoint.y };
                             double v2[2] = { innerLine.startPoint.x - corPoint.x, innerLine.startPoint.y - corPoint.y };
                             YFPoint otherPoint;
-                            //if (v1[0] * v2[0] - v2[1] * v2[1] < 0) otherPoint = innerLine.endPoint;
-                            //else otherPoint = innerLine.startPoint;
                             if (pow(v1[0], 2) + pow(v1[1], 2) < pow(v2[0], 2) + pow(v2[1], 2)) otherPoint = innerLine.startPoint;
                             else otherPoint = innerLine.endPoint;
                             innerLinesOfRegion.at(index[k]) = YFSegment(corPoint, otherPoint);
@@ -482,6 +482,30 @@ namespace HouseProcess {
             }
             innerLines.insert(innerLines.end(), innerLinesOfRegion.begin(), innerLinesOfRegion.end());
         }
+        //int count = innerLines.size();
+        //if (count > 0) {
+        //    for (int i = 0; i < count - 1; i++) {
+        //        auto curLine = innerLines.at(i);
+        //        for (int j = i + 1; j < count; j++) {
+        //            auto otherLine = innerLines.at(j);
+        //            auto corPoint = curLine.getCorWith(otherLine);
+        //            if (corPoint.isNULL) continue;
+        //            vector<YFSegment> tmpArr = { curLine, otherLine };
+        //            int index[2] = { i, j };
+        //            //continue;
+        //            for (int k = 0; k < tmpArr.size(); k++) {
+        //                auto innerLine = tmpArr.at(k);
+        //                // 如果点在直线的范围内
+        //                double v1[2] = { innerLine.endPoint.x - corPoint.x, innerLine.endPoint.y - corPoint.y };
+        //                double v2[2] = { innerLine.startPoint.x - corPoint.x, innerLine.startPoint.y - corPoint.y };
+        //                YFPoint otherPoint;
+        //                if (pow(v1[0], 2) + pow(v1[1], 2) < pow(v2[0], 2) + pow(v2[1], 2)) otherPoint = innerLine.startPoint;
+        //                else otherPoint = innerLine.endPoint;
+        //                innerLines.at(index[k]) = YFSegment(corPoint, otherPoint);
+        //            }
+        //        }
+        //    }
+        //}
         return innerLines;
     }
 

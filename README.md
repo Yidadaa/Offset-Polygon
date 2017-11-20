@@ -36,7 +36,7 @@ int main() {
     }
 
     /* 第二步：初始化House类 */
-    YFHouse house(wallLines); // 用转换后的Segment集合构造House对象
+    YFHouse house(wallLines, 0.3); // 用转换后的Segment集合构造House对象
 
     /* 第三步：开始使用*/
     vector<YFRegion> regions = house.regions; // 找到的区域存放在House的regions属性中

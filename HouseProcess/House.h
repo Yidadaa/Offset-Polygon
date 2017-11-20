@@ -76,8 +76,9 @@ namespace HouseProcess {
     public:
         vector<YFRegion> regions;
         YFHouse();
-        YFHouse(vector<YFSegment> lines);
-        vector<YFRegion> findRegions();
+        YFHouse(vector<YFSegment> line, double outWallThickness);
+        double outWallThickness;
+        vector<YFRegion> findRegions(vector<YFSegment> lines);
         vector<YFSegment> findOutLines();
         vector<YFSegment> findInnerLiners();
         vector<YFSegment> lines;
