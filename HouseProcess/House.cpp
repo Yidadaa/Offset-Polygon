@@ -154,6 +154,7 @@ namespace HouseProcess {
         vector<YFSegment> outLines;
         vector<YFSegment> lines = this->lines;
         vector<YFRegion> regions = this->regions;
+        const double distance = this->outWallThickness;
 
         vector<YFRegion> outRegions;
         vector<YFPoint> allPoints; // 所有用来计算外线的点都放在这里
@@ -191,7 +192,7 @@ namespace HouseProcess {
         /* 将多边形向内或者向外扩展一定距离，当d大于0时，向多边形外部扩张；否则向内部收缩 */
         auto zoomRegion = [computeTheta](YFRegion r, double distance) {
             double d = abs(distance);
-            double isZoomOut = distance > 0; // 是否外扩
+            bool isZoomOut = distance > 0; // 是否外扩
             vector<YFPoint> outPoints; // 将所有角平分线上的点保存下来
             int borderCount = r.borders.size();
             for (int i = 0; i < borderCount; i++) {
@@ -229,7 +230,7 @@ namespace HouseProcess {
                 YFPoint p1(rho * cos(theta1) + mp.x, rho * sin(theta1) + mp.y); // 需要加上mp的值进行复原操作
                 YFPoint p2(rho * cos(theta2) + mp.x, rho * sin(theta2) + mp.y);
                 // 判断p1和p2谁在区域内，如果是外扩，那么就选区域外的点；如果是内缩，那么就选区域内的点
-                YFPoint p = p1.isInRegion(r) && isZoomOut ? p2 : p1;
+                YFPoint p = p1.isInRegion(r) == isZoomOut ? p2 : p1; // 使用异或操作进行判断，是选p1还是p2
                 p.bulge = mp.bulge; // 保持弧线一致
                 outPoints.push_back(p); // 将点p收集起来
             }
@@ -280,12 +281,19 @@ namespace HouseProcess {
                     }
                 }
             }
+            vector<YFSegment> tmpLines;
+            for (auto l : regionOutLines) {
+                // 删除零线段
+                if (l.distance > MIN_ERR) tmpLines.push_back(l);
+            }
+            regionOutLines = tmpLines;
             return YFRegion(regionOutLines);
         };
 
-        for (auto r : regions) outRegions.push_back(zoomRegion(r, 0.15)); // 将所有区域外扩0.3个单位
+        for (auto r : regions) outRegions.push_back(zoomRegion(r, distance >= 0.15 ? distance : 0.15));
+        // 将所有区域外扩distance个单位，为了保证区域之间有重叠，设置最小值为0.15，小于0.15的另行处理
 
-                                                                          /* 将n点集按坐标排序 */
+        /* 将n点集按坐标排序 */
         auto compare = [](YFPoint a, YFPoint b) {
             if (abs(a.x - b.x) < MIN_ERR) return a.y < b.y;
             else return a.x < b.x;
@@ -371,6 +379,12 @@ namespace HouseProcess {
             }
             outLines = tmpOutLines;
         }
+        auto rs = YFHouse().findRegions(outLines); // 利用findRegions函数对外线进行重排序
+        auto finalOutRegion = rs.size() > 0 ? rs.at(0) : YFRegion();
+        if (!finalOutRegion.isNULL && distance < 0.15) {
+            finalOutRegion = zoomRegion(finalOutRegion, distance - 0.15);
+        }
+        if (!finalOutRegion.isNULL) outLines = finalOutRegion.borders;
         return outLines;
     }
 
@@ -840,7 +854,7 @@ namespace HouseProcess {
         this->endPoint = ep;
         this->id = "NO ID";
         this->a = sp.y - ep.y;
-        this->b = sp.x - ep.x;
+        this->b = sp.x - ep.x; // 直线的一般式竟然一直都写错了！
         this->c = sp.x * ep.y - sp.y * ep.x;
         this->isNULL = false;
         this->distance = sqrt(pow(sp.x - ep.x, 2) + pow(sp.y - ep.y, 2)); // 计算长度
@@ -914,7 +928,7 @@ namespace HouseProcess {
     /* 判断某线段是否包含某点 */
     bool YFSegment::hasPoint(YFPoint p) {
         auto l = *(this);
-        bool isOnLine = abs(l.a * p.x + l.b * p.y + l.c) < MIN_ERR;
+        bool isOnLine = abs(l.a * p.x - l.b * p.y + l.c) < MIN_ERR;
         bool isInRange;
         if (abs(l.a) < MIN_ERR) {
             // 如果直线平行于x轴，就判定x的坐标范围
