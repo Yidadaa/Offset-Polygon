@@ -201,7 +201,7 @@ namespace HouseProcess {
                 YFPoint sp, mp, ep; // 开始点，中间点，结束点
                 if (curSeg.endPoint.isEqualTo(nextSeg.startPoint)) {
                     sp = curSeg.startPoint;
-                    mp = curSeg.endPoint;
+                    mp = nextSeg.startPoint;
                     ep = nextSeg.endPoint;
                 } else if (curSeg.endPoint.isEqualTo(nextSeg.endPoint)) {
                     sp = curSeg.startPoint;
@@ -262,11 +262,13 @@ namespace HouseProcess {
                     int beforeDel = regionOutLines.size();
                     if (min2maxLength < fullLength / 2) {
                         // 需要删除(min, max)之间的线段
+                        corPoint.bulge = regionOutLines.at(maxIndex).startPoint.bulge; // 保持弧线信息一致
                         regionOutLines.at(minIndex) = YFSegment(regionOutLines.at(minIndex).startPoint, corPoint);
                         regionOutLines.at(maxIndex) = YFSegment(corPoint, regionOutLines.at(maxIndex).endPoint);
                         regionOutLines.erase(regionOutLines.begin() + minIndex + 1, regionOutLines.begin() + maxIndex); // 删除(minIndex, maxIndex)
                     } else {
                         // 需要删除[0, min), (max, N)之间的线段
+                        corPoint.bulge = regionOutLines.at(minIndex).startPoint.bulge; // 保持弧线信息一致
                         regionOutLines.at(minIndex) = YFSegment(corPoint, regionOutLines.at(minIndex).endPoint);
                         regionOutLines.at(maxIndex) = YFSegment(regionOutLines.at(maxIndex).startPoint, corPoint);
                         regionOutLines.erase(regionOutLines.begin() + maxIndex + 1, regionOutLines.end()); // 删除(maxIndex, end]
@@ -317,6 +319,9 @@ namespace HouseProcess {
                         }
                     }
                     if (corPts.size() > 0) { // 存在交点时，进行合并运算
+                        for (int k = 0; k < corPts.size(); k++) {
+                            corPts[k] = YFPoint(corPts.at(k).x, corPts.at(k).y, l.startPoint.bulge, ""); // 保持弧线信息
+                        }
                         corPts.push_back(l.startPoint);
                         corPts.push_back(l.endPoint);
                         corPoints.insert(corPoints.end(), corPts.begin(), corPts.end()); // 保存交点
