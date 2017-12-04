@@ -1,7 +1,8 @@
 #pragma once
 #include "House.h"
+//#include "stdafx.h"
 
-#define MIN_ERR 0.00001 // 定义最小误差，用于相等计算
+#define MIN_ERR 0.000001 // 定义最小误差，用于相等计算
 #define PI 3.14159265358 // 预定义π值
 
 namespace HouseProcess {
@@ -153,7 +154,6 @@ namespace HouseProcess {
         vector<YFSegment> outLines;
         vector<YFSegment> lines = this->lines;
         vector<YFRegion> regions = this->regions;
-        const double d = this->outWallThickness; // 这里可以设置墙壁厚度
 
         vector<YFRegion> outRegions;
         vector<YFPoint> allPoints; // 所有用来计算外线的点都放在这里
@@ -188,8 +188,10 @@ namespace HouseProcess {
             }
         };
 
-        for (auto r : regions) {
-            // 对每一个region计算外边线
+        /* 将多边形向内或者向外扩展一定距离，当d大于0时，向多边形外部扩张；否则向内部收缩 */
+        auto zoomRegion = [computeTheta](YFRegion r, double distance) {
+            double d = abs(distance);
+            double isZoomOut = distance > 0; // 是否外扩
             vector<YFPoint> outPoints; // 将所有角平分线上的点保存下来
             int borderCount = r.borders.size();
             for (int i = 0; i < borderCount; i++) {
@@ -226,8 +228,8 @@ namespace HouseProcess {
                 double theta2 = theta1 + PI; // 角平分线延长线上的点
                 YFPoint p1(rho * cos(theta1) + mp.x, rho * sin(theta1) + mp.y); // 需要加上mp的值进行复原操作
                 YFPoint p2(rho * cos(theta2) + mp.x, rho * sin(theta2) + mp.y);
-                // 判断p1和p2谁在区域内，取不在区域内的作为选中的点
-                YFPoint p = p1.isInRegion(r) ? p2 : p1;
+                // 判断p1和p2谁在区域内，如果是外扩，那么就选区域外的点；如果是内缩，那么就选区域内的点
+                YFPoint p = p1.isInRegion(r) && isZoomOut ? p2 : p1;
                 p.bulge = mp.bulge; // 保持弧线一致
                 outPoints.push_back(p); // 将点p收集起来
             }
@@ -236,10 +238,54 @@ namespace HouseProcess {
             for (int i = 0; i < pointCount; i++) {
                 regionOutLines.push_back(YFSegment(outPoints.at(i), outPoints.at((i + 1) % pointCount))); // 将所有点连起来，作为外边线
             }
-            outRegions.push_back(YFRegion(regionOutLines)); // 将区域收集起来
-        }
+            // 检测是否存在自相交，如果有自相交，删除自相交的部分
+            for (int i = 0; i < regionOutLines.size(); i++) {
+                auto curLine = regionOutLines.at(i);
+                for (int j = 0; j < regionOutLines.size(); j++) {
+                    if ((i == 0 && j == regionOutLines.size() - 1) ||
+                        (j == 0 && i == regionOutLines.size() - 1) ||
+                        (abs(i - j) <= 1)) continue; // 跳过相邻边
+                    auto theJline = regionOutLines.at(j);
+                    auto corPoint = theJline.getCorWith(curLine); // 计算交点
+                    if (corPoint.isNULL) continue; // 交点为空，及时跳出
+                                                   // 如果存在交点，就将两交点之间的线段删除
+                                                   // 通过计算周长来判断删除哪部分线段
+                    int minIndex = i > j ? j : i;
+                    int maxIndex = i > j ? i : j;
+                    double fullLength = 0.0; // 计算所有线段总长
+                    double min2maxLength = 0.0; // 计算min到max之间的线段长度
+                    for (int k = 0; k < regionOutLines.size(); k++) {
+                        fullLength += regionOutLines.at(k).distance;
+                        if (k >= minIndex && k <= maxIndex) min2maxLength += regionOutLines.at(k).distance;
+                    }
+                    int beforeDel = regionOutLines.size();
+                    if (min2maxLength < fullLength / 2) {
+                        // 需要删除(min, max)之间的线段
+                        regionOutLines.at(minIndex) = YFSegment(regionOutLines.at(minIndex).startPoint, corPoint);
+                        regionOutLines.at(maxIndex) = YFSegment(corPoint, regionOutLines.at(maxIndex).endPoint);
+                        regionOutLines.erase(regionOutLines.begin() + minIndex + 1, regionOutLines.begin() + maxIndex); // 删除(minIndex, maxIndex)
+                    } else {
+                        // 需要删除[0, min), (max, N)之间的线段
+                        regionOutLines.at(minIndex) = YFSegment(corPoint, regionOutLines.at(minIndex).endPoint);
+                        regionOutLines.at(maxIndex) = YFSegment(regionOutLines.at(maxIndex).startPoint, corPoint);
+                        regionOutLines.erase(regionOutLines.begin() + maxIndex + 1, regionOutLines.end()); // 删除(maxIndex, end]
+                        regionOutLines.erase(regionOutLines.begin(), regionOutLines.begin() + (minIndex - 1 <= 0 ? 1 : minIndex - 1)); // 删除[0, minIndex)
+                    }
+                    int afterDel = regionOutLines.size();
+                    // 删除线段后，重新开始循环
+                    if (beforeDel != afterDel) {
+                        // 这里的判断是防止死循环
+                        i = 0;
+                        break;
+                    }
+                }
+            }
+            return YFRegion(regionOutLines);
+        };
 
-        /* 将n点集按坐标排序 */
+        for (auto r : regions) outRegions.push_back(zoomRegion(r, 0.15)); // 将所有区域外扩0.3个单位
+
+                                                                          /* 将n点集按坐标排序 */
         auto compare = [](YFPoint a, YFPoint b) {
             if (abs(a.x - b.x) < MIN_ERR) return a.y < b.y;
             else return a.x < b.x;
@@ -248,7 +294,6 @@ namespace HouseProcess {
         if (outRegions.size() > 1) {
             // 开始计算所有区域之间的交点
             vector<YFPoint> corPoints;
-            outLines.clear();
             for (int i = 0; i < outRegions.size(); i++) {
                 auto curRegion = outRegions.at(i);
                 for (auto l : curRegion.borders) { // 对于当前区域的每一个边界，都计算其与其他区域的交点
@@ -273,8 +318,15 @@ namespace HouseProcess {
                             YFSegment tmpSeg(corPts.at(k), corPts.at(k + 1));
                             // 判断连起来的线段是否在相交区域外
                             bool isInRegion = false;
-                            for (int index = 0; index < this->regions.size(); index++) {
-                                auto r = this->regions.at(index);
+                            for (int index = 0; index < outRegions.size(); index++) {
+                                // 把在区域内的线去除
+                                if (index == i) continue;
+                                auto r = outRegions.at(index);
+                                isInRegion = isInRegion || tmpSeg.center.isInRegionWithoutBorder(r);
+                            }
+                            for (auto r : this->regions) {
+                                //continue;
+                                // 把在内区域的线也去除掉
                                 isInRegion = isInRegion || tmpSeg.center.isInRegion(r) || tmpSeg.startPoint.isInRegion(r) || tmpSeg.endPoint.isInRegion(r);
                             }
                             if (!isInRegion) { // 若在区域外，则判定其为边界
@@ -284,9 +336,15 @@ namespace HouseProcess {
                     } else {
                         // 如果没有交点，证明这条边界不需要合并
                         bool isInRegion = false;
+                        for (int index = 0; index < outRegions.size(); index++) {
+                            if (index == i) continue;
+                            auto r = outRegions.at(index);
+                            isInRegion = isInRegion || l.center.isInRegionWithoutBorder(r);
+                        }
                         for (int index = 0; index < this->regions.size(); index++) {
+                            //continue;
                             auto r = this->regions.at(index);
-                            isInRegion = isInRegion || l.center.isInRegion(r) || l.startPoint.isInRegion(r) || l.endPoint.isInRegion(r);;
+                            isInRegion = isInRegion || l.center.isInRegion(r) || l.startPoint.isInRegion(r) || l.endPoint.isInRegion(r);
                         }
                         if (!isInRegion) outLines.push_back(l);
                     }
@@ -298,10 +356,21 @@ namespace HouseProcess {
         }
 
         if (outLines.size() > 0) {
-            // 对outLine中处于同一直线上的线段进行合并
-            // TODO
+            // 对outLines中的线段进行去重操作
+            vector<YFSegment> tmpOutLines;
+            for (auto l : outLines) {
+                bool alreadyExist = false;
+                for (auto s : tmpOutLines) {
+                    // 检测是否有相同线段已经存在了，这里复杂度为o(n^2)，可以用哈希来优化
+                    alreadyExist = abs(s.center.x - l.center.x) < MIN_ERR && abs(s.center.y - l.center.y) < MIN_ERR;
+                    if (alreadyExist) break;
+                }
+                if (!alreadyExist) {
+                    tmpOutLines.push_back(l);
+                }
+            }
+            outLines = tmpOutLines;
         }
-
         return outLines;
     }
 
@@ -733,6 +802,19 @@ namespace HouseProcess {
         return corPoints.size() % 2 == 1; // 如果交点个数为奇数个，则判定该点在区域内
     }
 
+    /* 判断点是否在不包含边界的区域内 */
+    bool YFPoint::isInRegionWithoutBorder(YFRegion r) {
+        bool isOnBorder = false;
+        for (auto l : r.borders) {
+            bool hasPoint = l.hasPoint(*(this));
+            isOnBorder = isOnBorder || hasPoint;
+        }
+        if (isOnBorder) return false; // 如果在边界上，那么就直接判定为不在区域内
+        YFPoint zeroPoint(-1, -1);
+        YFSegment line = YFSegment(zeroPoint, *this); // 画一条射向区域外的射线
+        vector<YFPoint> corPoints = line.getCorWithRegion(r); // 取得射线与区域的交点
+        return corPoints.size() % 2 == 1; // 如果交点个数为奇数个，则判定该点在区域内
+    }
 
     YFSegment::YFSegment(YFPoint sp, YFPoint ep, string id_val) {
         this->startPoint = sp;
@@ -827,6 +909,21 @@ namespace HouseProcess {
             }
         }
         return corPoints;
+    }
+
+    /* 判断某线段是否包含某点 */
+    bool YFSegment::hasPoint(YFPoint p) {
+        auto l = *(this);
+        bool isOnLine = abs(l.a * p.x + l.b * p.y + l.c) < MIN_ERR;
+        bool isInRange;
+        if (abs(l.a) < MIN_ERR) {
+            // 如果直线平行于x轴，就判定x的坐标范围
+            isInRange = p.x <= l.xRange.max && p.x >= l.xRange.min;
+        } else {
+            // 如果直线平行于y轴，就判定y的坐标范围
+            isInRange = p.y <= l.yRange.max && p.y >= l.yRange.min;
+        }
+        return isInRange && isOnLine;
     }
 }
 

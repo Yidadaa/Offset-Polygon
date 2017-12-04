@@ -29,7 +29,8 @@ namespace HouseProcess {
         YFPoint(double x, double y, double bulge, string id);
         YFPoint(double x_val, double y_val);
         bool isEqualTo(YFPoint p);
-        bool isInRegion(YFRegion r);
+        bool isInRegion(YFRegion r); // 如果点在区域边界上，那么将其算作在区域内
+        bool isInRegionWithoutBorder(YFRegion r); // 如果点在区域边界上，那么不将其算作在区域内
     };
 
     /* 定义一条线段 */
@@ -55,6 +56,7 @@ namespace HouseProcess {
         YFPoint getCorWith(YFSegment s);
         vector<YFPoint> getCorWithRegion(YFRegion r);
         bool isParalWith(YFSegment s);
+        bool hasPoint(YFPoint p); // 判断某点是否在线段上
     };
 
     class YFRegion {

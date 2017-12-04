@@ -19,7 +19,7 @@ int main()
 void test() {
     /*≤‚ ‘Point¿‡*/
     YFPoint p = YFPoint(1, 1, 1, "hello");
-    YFPoint p2 = YFPoint(1.000001, 1.000001, 1, "fuck");
+    YFPoint p2 = YFPoint(1.0000001, 1.0000001, 1, "fuck");
     YFPoint emptyP = YFPoint();
     bool a = p.isEqualTo(p2) == true;
     isPassed("Point::isEqualTo()", a);
