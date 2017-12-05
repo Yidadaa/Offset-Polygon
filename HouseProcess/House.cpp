@@ -1,6 +1,6 @@
 #pragma once
 #include "House.h"
-//#include "stdafx.h"
+#include "stdafx.h"
 
 #define MIN_ERR 0.000001 // 定义最小误差，用于相等计算
 #define PI 3.14159265358 // 预定义π值
@@ -155,6 +155,7 @@ namespace HouseProcess {
         vector<YFSegment> lines = this->lines;
         vector<YFRegion> regions = this->regions;
         const double distance = this->outWallThickness;
+        const double D = 0.3; // 最小距离
 
         vector<YFRegion> outRegions;
         vector<YFPoint> allPoints; // 所有用来计算外线的点都放在这里
@@ -292,8 +293,8 @@ namespace HouseProcess {
             return YFRegion(regionOutLines);
         };
 
-        for (auto r : regions) outRegions.push_back(zoomRegion(r, distance >= 0.15 ? distance : 0.15));
-        // 将所有区域外扩distance个单位，为了保证区域之间有重叠，设置最小值为0.15，小于0.15的另行处理
+        for (auto r : regions) outRegions.push_back(zoomRegion(r, distance >= D ? distance : D));
+        // 将所有区域外扩distance个单位，为了保证区域之间有重叠，设置最小值为D，小于D的另行处理
 
         /* 将n点集按坐标排序 */
         auto compare = [](YFPoint a, YFPoint b) {
@@ -386,8 +387,8 @@ namespace HouseProcess {
         }
         auto rs = YFHouse().findRegions(outLines); // 利用findRegions函数对外线进行重排序
         auto finalOutRegion = rs.size() > 0 ? rs.at(0) : YFRegion();
-        if (!finalOutRegion.isNULL && distance < 0.15) {
-            finalOutRegion = zoomRegion(finalOutRegion, distance - 0.15);
+        if (!finalOutRegion.isNULL && distance < D) {
+            finalOutRegion = zoomRegion(finalOutRegion, distance - D);
         }
         if (!finalOutRegion.isNULL) outLines = finalOutRegion.borders;
         return outLines;
