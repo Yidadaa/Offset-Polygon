@@ -1,6 +1,6 @@
 #pragma once
 #include "House.h"
-#include "stdafx.h"
+//#include "stdafx.h"
 
 #define MIN_ERR 0.000001 // 定义最小误差，用于相等计算
 #define PI 3.14159265358 // 预定义π值
@@ -226,19 +226,25 @@ namespace HouseProcess {
                 double alpha = acos((oa[0] * ob[0] + oa[1] * ob[1]) / (lenOfVector(oa) * lenOfVector(ob))); // oa与ob的夹角
                                                                                                             // 根据a和b的极坐标，可以计算出两者角平分线上的任意一点坐标
                 double rho = d / sin(alpha / 2); // 计算点p的极坐标的r
+                double testRho = 0.01 / sin(alpha / 2); // testRho用于判断点是否在区域内，如果用d，有时会无法判断
                 double theta1 = (thetaOA + thetaOB) / 2; // 角平分线上的点
                 double theta2 = theta1 + PI; // 角平分线延长线上的点
                 YFPoint p1(rho * cos(theta1) + mp.x, rho * sin(theta1) + mp.y); // 需要加上mp的值进行复原操作
                 YFPoint p2(rho * cos(theta2) + mp.x, rho * sin(theta2) + mp.y);
-                // 判断p1和p2谁在区域内，如果是外扩，那么就选区域外的点；如果是内缩，那么就选区域内的点
-                YFPoint p = p1.isInRegion(r) == isZoomOut ? p2 : p1; // 使用异或操作进行判断，是选p1还是p2
+                YFPoint testp1(testRho * cos(theta1) + mp.x, testRho * sin(theta1) + mp.y); // 用于测试的两个点,testp1和testp2
+                YFPoint testp2(testRho * cos(theta2) + mp.x, testRho * sin(theta2) + mp.y); // 这两个点代表了p1和p2与区域的位置关系
+                                                                                            // 判断p1和p2谁在区域内，如果是外扩，那么就选区域外的点；如果是内缩，那么就选区域内的点
+                YFPoint p = testp1.isInRegion(r) == isZoomOut ? p2 : p1; // 使用异或操作进行判断，是选p1还是p2
                 p.bulge = mp.bulge; // 保持弧线一致
                 outPoints.push_back(p); // 将点p收集起来
             }
             int pointCount = outPoints.size();
             vector<YFSegment> regionOutLines;
+            double fullLength = 0.0; // 计算所有线段总长
             for (int i = 0; i < pointCount; i++) {
-                regionOutLines.push_back(YFSegment(outPoints.at(i), outPoints.at((i + 1) % pointCount))); // 将所有点连起来，作为外边线
+                auto s = YFSegment(outPoints.at(i), outPoints.at((i + 1) % pointCount));
+                fullLength += s.distance;
+                regionOutLines.push_back(s); // 将所有点连起来，作为外边线
             }
             // 检测是否存在自相交，如果有自相交，删除自相交的部分
             for (int i = 0; i < regionOutLines.size(); i++) {
@@ -254,14 +260,12 @@ namespace HouseProcess {
                                                    // 通过计算周长来判断删除哪部分线段
                     int minIndex = i > j ? j : i;
                     int maxIndex = i > j ? i : j;
-                    double fullLength = 0.0; // 计算所有线段总长
                     double min2maxLength = 0.0; // 计算min到max之间的线段长度
                     for (int k = 0; k < regionOutLines.size(); k++) {
-                        fullLength += regionOutLines.at(k).distance;
                         if (k >= minIndex && k <= maxIndex) min2maxLength += regionOutLines.at(k).distance;
                     }
                     int beforeDel = regionOutLines.size();
-                    if (min2maxLength < fullLength / 2) {
+                    if (min2maxLength < fullLength / 2.0) {
                         // 需要删除(min, max)之间的线段
                         corPoint.bulge = regionOutLines.at(maxIndex).startPoint.bulge; // 保持弧线信息一致
                         regionOutLines.at(minIndex) = YFSegment(regionOutLines.at(minIndex).startPoint, corPoint);
