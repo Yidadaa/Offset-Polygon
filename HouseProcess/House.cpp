@@ -45,9 +45,9 @@ namespace HouseProcess {
             YFPoint tmp = s.startPoint;
             s.startPoint = s.endPoint;
             s.endPoint = tmp;
-            // 始终是有bulge的边指向无bulge的边，所以无需变换bulge
-            //s.startPoint.bulge = negNum(s.startPoint.bulge);
-            //s.endPoint.bulge = negNum(s.endPoint.bulge);
+            double tmpBulge = s.startPoint.bulge;
+            s.startPoint.bulge = negNum(s.endPoint.bulge); // 首尾反转，弧度交换并且取反
+            s.endPoint.bulge = negNum(tmpBulge);
             return s;
         };
 
@@ -138,6 +138,9 @@ namespace HouseProcess {
                     break;
                 }
             }
+            vector<YFSegment> tmpBorders;
+            for (auto l : borders) if (l.distance > MIN_ERR) tmpBorders.push_back(l); // 过滤零线段
+            borders = tmpBorders;
             YFRegion region(borders);
             if (borders.size() == 0) {
                 break; // 没有收集到区域，停止循环
@@ -242,7 +245,8 @@ namespace HouseProcess {
             vector<YFSegment> regionOutLines;
             double fullLength = 0.0; // 计算所有线段总长
             for (int i = 0; i < pointCount; i++) {
-                auto s = YFSegment(outPoints.at(i), outPoints.at((i + 1) % pointCount));
+                auto ep = outPoints.at((i + 1) % pointCount);
+                auto s = YFSegment(outPoints.at(i), YFPoint(ep.x, ep.y)); // 去除endPoint的bulge信息
                 fullLength += s.distance;
                 regionOutLines.push_back(s); // 将所有点连起来，作为外边线
             }
