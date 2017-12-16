@@ -394,7 +394,17 @@ namespace HouseProcess {
             outLines = tmpOutLines;
         }
         auto rs = YFHouse().findRegions(outLines); // 利用findRegions函数对外线进行重排序
-        auto finalOutRegion = rs.size() > 0 ? rs.at(0) : YFRegion();
+        auto finalOutRegion = YFRegion();
+        int maxSize = 0;
+        if (rs.size() > 0) {
+            // 如果找到多个外区域，返回最大的那个
+            for (int i = 0; i < rs.size(); i++) {
+                if (rs[i].borders.size() > maxSize) {
+                    finalOutRegion = rs[i];
+                    maxSize = rs[i].borders.size();
+                }
+            }
+        }
         if (!finalOutRegion.isNULL && distance < D) {
             finalOutRegion = zoomRegion(finalOutRegion, distance - D);
         }
@@ -404,34 +414,19 @@ namespace HouseProcess {
 
     /* 计算中墙线 */
     vector<YFSegment> YFHouse::findInnerLiners() {
-        vector<YFSegment> allLines;
-        vector<YFSegment> allInLines;
-        allLines.insert(allLines.end(), this->outLines.begin(), this->outLines.end()); // 将外线放进来
-        for (auto r : this->regions) {
-            allInLines.insert(allInLines.end(), r.borders.begin(), r.borders.end()); // 将各区域的内线放进来
-        }
-        allLines.insert(allLines.end(), allInLines.begin(), allInLines.end());
-
-        struct wrapLine {
-            int srcIndex; // 线段在allLines中的索引
-            int paraIndex; // 与此线段平行的线段在allLines中的索引
-            YFSegment midLine; // 两线段的中线
+        struct LINE {
+            YFSegment s;
+            bool hasChanged;
         };
-
-        vector<wrapLine> wrapLines(allLines.size());
-        vector<YFSegment> innerLines;
-
-        /* 判断两直线是否在同一直线上 */
-        auto isInSameLine = [](YFSegment a, YFSegment b) {
-            if (!a.isParalWith(b)) {
-                return false;
-            } else {
-                bool isInSameLine = abs(a.a * b.b - a.b * b.a) < MIN_ERR &&
-                    abs(a.a * b.c - a.c * b.a) < MIN_ERR &&
-                    abs(a.b * b.c - a.c * b.b) < MIN_ERR;
-                return isInSameLine;
-            }
-        };
+        map <string, LINE> inlinesMap; // 用来存放中线
+        map <string, string> singleMap; // 用来建立对应关系，<当前线段，lineMap的key>
+                                        // 建立一个哈希表，用于快速查找两条线之间的中线
+        vector<YFRegion> allLines;
+        // 存放所有线段，依次是 各区域边线 - 外线
+        allLines = this->regions;
+        allLines.push_back(YFRegion(this->outLines));
+        // 每一条线在allLines中，都可以由[rIndex][lIndex]索引到
+        // 这个索引将用于查找哈希表
 
         /* 将n点集按坐标排序 */
         auto compare = [](YFPoint a, YFPoint b) {
@@ -441,169 +436,265 @@ namespace HouseProcess {
 
         /* 从小到大将点按坐标排序 */
         auto sortPoints = [compare](YFPoint a, YFPoint b) {
-            vector<YFPoint> arr;
-            arr.push_back(a);
-            arr.push_back(b);
+            vector<YFPoint> arr({ a, b });
             sort(arr.begin(), arr.end(), compare);
             return arr;
         };
 
-        /* 计算两平行直线间距离 */
-        auto computeDistanceOfLines = [](YFSegment a, YFSegment b) {
-            if (a.isParalWith(b)) {
-                double rate;
-                if (abs(a.a) > MIN_ERR) {
-                    rate = b.a / a.a;
-                } else if (abs(a.b) > MIN_ERR) {
-                    rate = b.b / a.b;
-                } else rate = 10000;
-                return abs(a.c * rate - b.c) / sqrt(pow(b.a, 2) + pow(b.b, 2));
+        /* 计算探针线段 */
+        auto computeSeekers = [sortPoints](YFSegment s, YFRegion r, bool isOutLine) {
+            const double delta = 0.01; // 偏移量
+            const double d = 0.5; // 探针伸出长度
+            auto sorted = sortPoints(s.startPoint, s.endPoint);
+            auto sp = sorted[0];
+            auto ep = sorted[1];
+            auto cp = s.center;
+            vector<YFSegment> seekers;
+            double cosAlpha = abs(ep.y - sp.y) / s.distance;
+            double sinAlpha = abs(ep.x - sp.x) / s.distance;
+            YFPoint testPoint(cp.x + delta * cosAlpha, cp.y + delta * sinAlpha); // 用于判定探针方向
+            int direction = (testPoint.isInRegion(r) == isOutLine) ? 1 : -1;
+            seekers.push_back(YFSegment(sp, YFPoint(sp.x + direction * d * cosAlpha, sp.y + direction * d * sinAlpha)));
+            seekers.push_back(YFSegment(ep, YFPoint(ep.x + direction * d * cosAlpha, ep.y + direction * d * sinAlpha)));
+            return seekers;
+        };
+
+        /* 生成哈希表的键值，rIndex - 所在区域的索引，lIndex - 线段在区域中的索引 */
+        auto computeKeys = [](int rIndex1, int lIndex1, int rIndex2, int lIndex2) {
+            vector<int> k1({ rIndex1, lIndex1 });
+            vector<int> k2({ rIndex2, lIndex2 });
+            vector<int> sk;
+            string key;
+            if (k1[0] > k2[0] || (k1[0] == k2[0] && k1[1] > k2[1])) {
+                sk = k1;
+                k1 = k2;
+                k2 = sk;
             }
-            return 10000.0;
+            key = to_string(k1[0]) + string("-") + to_string(k1[1]) + string("-")
+                + to_string(k2[0]) + string("-") + to_string(k2[1]);
+            return key;
+        };
+
+        /* 生成singleMap的key */
+        auto compute2Key = [](int i, int j) {
+            return to_string(i) + string("-") + to_string(j);
         };
 
         /* 计算两条直线的交点 */
-        auto computeCorOfLines = [isInSameLine](YFSegment a, YFSegment b) {
+        auto computeCorOfLines = [](YFSegment a, YFSegment b) {
             double der = a.a * b.b - a.b * b.a;
-            if (a.isParalWith(b) && !isInSameLine(a, b)) return YFPoint(); // a, b 平行不共线，不进行计算
+            if (a.isParalWith(b)) return YFPoint(); // a, b 平行不共线，不进行计算
             double x = (a.b * b.c - a.c * b.b) / der;
             double y = (a.a * b.c - a.c * b.a) / der; // 计算出交点坐标值
             return YFPoint(x, y);
         };
 
-        /* 计算某条线段在另一条线上的投影(a在b上的投影) */
-        auto computeRateOfLines = [sortPoints, computeDistanceOfLines](YFSegment a, YFSegment b) {
-            if (a.isParalWith(b)) {
-                double len = a.distance;
-                vector<YFPoint> m = sortPoints(a.startPoint, a.endPoint);
-                vector<YFPoint> n = sortPoints(b.startPoint, b.endPoint);
-                double v1[2] = { m.at(1).x - m.at(0).x, m.at(1).y - m.at(0).y };
-                double v2[2] = { n.at(0).x - m.at(0).x, n.at(0).y - m.at(0).y };
-                double cosAlpha1 = (v1[0] * v2[0] + v1[1] * v2[1]) / sqrt(pow(v1[0], 2) + pow(v1[1], 2)) / sqrt(pow(v2[0], 2) + pow(v2[1], 2)); // 计算夹角的cos值
-                if (cosAlpha1 > 0) len -= cosAlpha1 * sqrt(pow(v2[0], 2) + pow(v2[1], 2));
-                double v3[2] = { m.at(0).x - m.at(1).x, m.at(0).y - m.at(1).y };
-                double v4[2] = { n.at(1).x - m.at(1).x, n.at(1).y - m.at(1).y };
-                double cosAlpha2 = (v3[0] * v4[0] + v3[1] * v4[1]) / sqrt(pow(v3[0], 2) + pow(v3[1], 2)) / sqrt(pow(v4[0], 2) + pow(v4[1], 2)); // 计算夹角的cos值
-                if (cosAlpha2 > 0) len -= cosAlpha2 * sqrt(pow(v4[0], 2) + pow(v4[1], 2));
-                return len / a.distance;
-            }
-            return 0.0;
+        /* 计算两条线段的中线 */
+        auto computeMidLine = [sortPoints](YFSegment s, YFSegment l) {
+            auto a = sortPoints(s.startPoint, s.endPoint);
+            auto b = sortPoints(l.startPoint, l.endPoint);
+            auto msp = YFSegment(a[0], b[0]).center;
+            auto mep = YFSegment(a[1], b[1]).center;
+
+            return YFSegment(msp, mep);
         };
 
-        /* 寻找某条线的中线 */
-        auto findInnerLine = [allLines, isInSameLine, computeCorOfLines,
-            computeRateOfLines, computeDistanceOfLines, sortPoints](YFSegment curLine) {
-            int nearestIndex = -1;
-            double maxRate = -10000;
-            for (int j = 0; j < allLines.size(); j++) {
-                auto tmpLine = allLines.at(j);
-                if (isInSameLine(curLine, tmpLine)) continue; // 不能在同一直线上
-                if (curLine.distance < 0.1 || tmpLine.distance < 0.1) continue;
-                if (curLine.isParalWith(tmpLine)) {
-                    double theDistance = computeDistanceOfLines(curLine, tmpLine);
-                    double theRate = computeRateOfLines(curLine, tmpLine);
-                    if (theRate > maxRate && theDistance < 0.9 && theDistance > 0 && theRate > 0 && theRate < 1.01) {
-                        nearestIndex = j;
-                        maxRate = theRate;
+        /* 将线段排序 */
+        auto compareLine = [](YFSegment a, YFSegment b) {
+            if (abs(a.center.x - b.center.x) < MIN_ERR) return a.center.y < b.center.y;
+            else return a.center.x < b.center.x;
+        };
+
+        // 以下算法是o(n^2)的
+        int count = allLines.size();
+        for (int i = 0; i < count; i++) {
+            bool isOutLine = i >= this->regions.size(); // 是否是外边线段
+            auto r = allLines[i]; // 当前区域
+            for (int j = 0; j < r.borders.size(); j++) {
+                auto s = r.borders[j]; // 当前线段
+                auto seekers = computeSeekers(s, r, isOutLine); // 一般是两个探针
+
+                struct TMP_LINE {
+                    YFSegment nearestLine;
+                    vector<int> keys;
+                    double minDistance;
+                };
+
+                vector<TMP_LINE> opLines(seekers.size(), { YFSegment(), vector<int>(), 100000 });
+
+                for (int k = 0; k < count; k++) { // 遍历所有线段，找出对应的最近的线
+                    auto rr = allLines[k];
+                    for (int n = 0; n < rr.borders.size(); n++) {
+                        for (int ptr = 0; ptr < seekers.size(); ptr++) {
+                            // 对于每一个seeker，计算其与其他线段的交点
+                            auto seeker = seekers[ptr];
+                            auto curSeg = rr.borders[n];
+                            double cosBeta = (s.a * curSeg.a + s.b * curSeg.b)
+                                / sqrt(s.a * s.a + s.b * s.b)
+                                / sqrt(curSeg.a * curSeg.a + curSeg.b * curSeg.b);
+                            if (abs(cosBeta) < 0.9) continue; // 两直线夹角不能大于10度
+                            auto p = seeker.getCorWith(curSeg);
+                            if (!p.isNULL) {
+                                YFSegment tmp(seeker.startPoint, p);
+                                if (tmp.distance < opLines[ptr].minDistance && tmp.distance > 0.1) {
+                                    opLines[ptr].minDistance = tmp.distance;
+                                    opLines[ptr].nearestLine = curSeg;
+                                    opLines[ptr].keys = { k, n };
+                                }
+                            }
+                        }
+                    }
+                }
+                // 找到最近的线以及对应的索引之后，更新inLinesMap
+                struct TMP_MID_LINE {
+                    YFSegment midLine;
+                    vector<int> keys;
+                };
+                vector<TMP_MID_LINE> midLines;
+                if (opLines[0].nearestLine.isNULL && opLines[1].nearestLine.isNULL) {
+                    continue; // 如果没找到对应中线，就不进行操作
+                } else if (!opLines[0].nearestLine.isNULL && !opLines[1].nearestLine.isNULL) {
+                    // 两个seeker都找到了对应中线，需要对中线进行修剪
+                    vector<YFPoint> tmpPts({
+                        opLines[0].nearestLine.startPoint,
+                        opLines[0].nearestLine.endPoint,
+                        opLines[1].nearestLine.startPoint,
+                        opLines[1].nearestLine.endPoint,
+                    });
+                    sort(tmpPts.begin(), tmpPts.end(), compare);
+
+                    double midX = (tmpPts[1].x + tmpPts[2].x) / 2;
+                    double midY = (tmpPts[1].y + tmpPts[2].y) / 2;
+
+                    auto m1 = computeMidLine(s, opLines[0].nearestLine);
+                    auto m2 = computeMidLine(s, opLines[1].nearestLine);
+                    vector<YFSegment> m({ m1, m2 });
+                    sort(m.begin(), m.end(), compareLine);
+                    bool hasReverse = !m[0].center.isEqualTo(m1.center); // 是否进行重排序了
+
+                    auto computeAnotherPoint = [midX, midY](YFSegment s) {
+                        double x;
+                        double y;
+                        if (abs(s.a) < MIN_ERR) {
+                            x = midX;
+                            y = (s.a * midX + s.c) / s.b;
+                        } else {
+                            x = (s.b * midY - s.c) / s.a;
+                            y = midY;
+                        }
+                        return YFPoint(x, y);
+                    };
+
+                    auto m1sp = m[0].startPoint;
+                    auto m1ep = computeAnotherPoint(m[0]);
+                    auto m2sp = computeAnotherPoint(m[1]);
+                    auto m2ep = m[1].endPoint;
+                    midLines.push_back({ m1, opLines[hasReverse ? 1 : 0].keys });
+                    midLines.push_back({ m2, opLines[hasReverse ? 0 : 1].keys });
+                } else {
+                    // 只有一个seeker找到了对应中线，直接返回对应中线即可
+                    auto theLINE = opLines[0].nearestLine.isNULL ?
+                        opLines[1] : opLines[0];
+                    auto nearestLine = theLINE.nearestLine;
+                    auto midLine = computeMidLine(s, nearestLine);
+                    midLine.thickness = theLINE.minDistance;
+                    midLine.startPoint.bulge = s.startPoint.bulge; // 这里的弧度信息需要判断一下
+
+                    midLines.push_back({ midLine, theLINE.keys });
+                }
+
+                // 将处理好的中线存储到对应位置
+                for (auto midLineWithKeys : midLines) {
+                    auto keys = midLineWithKeys.keys;
+                    auto midLine = midLineWithKeys.midLine;
+                    if (keys.size() < 2) continue; // 防止越界
+                    auto theKey = computeKeys(i, j, keys[0], keys[1]);
+
+                    bool isInRegion = false; // 判断这条线是否在区域内
+                    for (auto r : this->regions) {
+                        isInRegion = isInRegion ||
+                            midLine.startPoint.isInRegionWithoutBorder(r) ||
+                            midLine.endPoint.isInRegionWithoutBorder(r) ||
+                            midLine.center.isInRegionWithoutBorder(r);
+                    }
+                    if (isInRegion) continue;
+
+                    LINE wmLine = { midLine, false };
+                    auto curLineKey = compute2Key(i, j);
+                    auto nearestLineKey = compute2Key(keys[0], keys[1]);
+
+                    if (singleMap.find(curLineKey) == singleMap.end()) singleMap[curLineKey] = theKey; // 储存当前边线
+                    if (singleMap.find(nearestLineKey) == singleMap.end()) singleMap[nearestLineKey] = theKey; // 储存对应边线
+
+                    if (inlinesMap.find(theKey) == inlinesMap.end()) {
+                        inlinesMap[theKey] = wmLine; // 两条线段之间只需要一条中线
                     }
                 }
             }
-            if (nearestIndex >= 0) {
-                vector<YFPoint> a = sortPoints(curLine.startPoint, curLine.endPoint);
-                auto nLine = allLines.at(nearestIndex);
-                vector<YFPoint> b = sortPoints(nLine.startPoint, nLine.endPoint);
-                YFPoint sp((a.at(0).x + b.at(0).x) / 2, (a.at(0).y + b.at(0).y) / 2);
-                YFPoint ep((a.at(1).x + b.at(1).x) / 2, (a.at(1).y + b.at(1).y) / 2);
-                if (abs(curLine.startPoint.bulge) > MIN_ERR) sp.bulge = curLine.startPoint.bulge; // 更新对应的弧线
-                                                                                                  //innerLines.push_back(YFSegment(curLine.center, nLine.center));
-                return YFSegment(sp, ep);
-            }
-            return YFSegment();
-        };
+        }
 
-        for (auto r : this->regions) {
-            vector<YFSegment> innerLinesOfRegion;
-            for (auto l : r.borders) innerLinesOfRegion.push_back(findInnerLine(l)); // 找到对应的中线
-            for (int i = 0; i < r.borders.size(); i++) {
-                int nextIndex = (i + 1) % r.borders.size();
-                auto curLine = r.borders.at(i); // 当前线段
-                auto curInnerLine = innerLinesOfRegion.at(i); // 当前线段中线
-                auto nextLine = r.borders.at(nextIndex); // 下一线段
-                auto nextInnerLine = innerLinesOfRegion.at(nextIndex); // 下一线段中线
+        for (int i = 0; i < count; i++) {
+            auto r = allLines[i];
+            for (int j = 0; j < r.borders.size(); j++) {
+                int nextIndex = (j + 1) % r.borders.size();
+                auto curLineKey = compute2Key(i, j);
+                auto nextLineKey = compute2Key(i, nextIndex);
+                auto curLine = r.borders.at(j);
+                auto nextLine = r.borders.at(nextIndex);
+
                 YFPoint linePoint; // 两条边缘的公共点
                 if (curLine.endPoint.isEqualTo(nextLine.startPoint) || curLine.endPoint.isEqualTo(nextLine.endPoint)) {
                     linePoint = curLine.endPoint;
                 } else linePoint = curLine.startPoint;
 
-                if (curInnerLine.isNULL || nextInnerLine.isNULL) { //如果其中一条线无法找到对应的中线
-                    continue;
-                }
-                if (isInSameLine(curInnerLine, nextInnerLine)) {
-                    // 如果当前中线与下一条内线共线，那么直接将两条线连在一起
-                    vector<YFPoint> edgePoints = {
-                        curInnerLine.startPoint, curInnerLine.endPoint,
-                        nextInnerLine.startPoint, nextInnerLine.endPoint
-                    };
-                    sort(edgePoints.begin(), edgePoints.end(), compare); // 将两条线的端点进行排序
-                    YFSegment combineLine = YFSegment(edgePoints.at(0), edgePoints.at(3));
-                    innerLinesOfRegion.at(i) = combineLine; // 更新对应的中线
-                    innerLinesOfRegion.at(nextIndex) = combineLine;
-                } else {
-                    YFPoint corPoint = computeCorOfLines(curInnerLine, nextInnerLine); // 计算两条中线的交点
-                    if (corPoint.isNULL) continue; // 没有交点，直接跳过
-                    vector<YFSegment> tmpArr = { curInnerLine, nextInnerLine };
-                    int index[2] = { i, nextIndex };
-                    for (int k = 0; k < tmpArr.size(); k++) {
-                        auto innerLine = tmpArr.at(k);
-                        if ((corPoint.x < innerLine.xRange.max && corPoint.x > innerLine.xRange.min) ||
-                            (corPoint.y < innerLine.yRange.max && corPoint.y > innerLine.yRange.min)) {
-                            // 如果点在直线的范围内
-                            double v1[2] = { innerLine.endPoint.x - corPoint.x, innerLine.endPoint.y - corPoint.y };
-                            double v2[2] = { innerLine.startPoint.x - corPoint.x, innerLine.startPoint.y - corPoint.y };
-                            YFPoint otherPoint;
-                            if (pow(v1[0], 2) + pow(v1[1], 2) < pow(v2[0], 2) + pow(v2[1], 2)) otherPoint = innerLine.startPoint;
-                            else otherPoint = innerLine.endPoint;
-                            innerLinesOfRegion.at(index[k]) = YFSegment(corPoint, otherPoint);
-                        } else {
-                            // 如果点在直线范围外
-                            vector<YFPoint> edgePoints = {
-                                innerLine.startPoint, innerLine.endPoint,
-                                corPoint
-                            };
-                            sort(edgePoints.begin(), edgePoints.end(), compare); // 将两条线的端点进行排序
-                            YFSegment combineLine = YFSegment(edgePoints.at(0), edgePoints.at(2));
-                            innerLinesOfRegion.at(index[k]) = combineLine; // 更新对应的中线
+                if (singleMap.find(curLineKey) != singleMap.end() &&
+                    singleMap.find(nextLineKey) != singleMap.end()) {
+                    // 当两条线段的中线都存在时
+                    auto curMidLineKey = singleMap[curLineKey];
+                    auto nextMidLineKey = singleMap[nextLineKey];
+                    auto curMidLine = inlinesMap[curMidLineKey];
+                    auto nextMidLine = inlinesMap[nextMidLineKey];
+
+                    // 开始削减或者延长对应的边
+                    if (!curMidLine.s.isParalWith(nextMidLine.s)) {
+                        // 只计算不平行的时候的情况
+                        YFPoint corPoint = computeCorOfLines(curMidLine.s, nextMidLine.s); // 计算两条中线的交点
+                        if (corPoint.isNULL) continue; // 没有交点，直接跳过
+                        vector<LINE> tmpArr = { curMidLine, nextMidLine };
+                        string key[2] = { curMidLineKey, nextMidLineKey };
+                        for (int k = 0; k < tmpArr.size(); k++) {
+                            auto innerLine = tmpArr.at(k).s;
+                            bool hasChanged = tmpArr.at(k).hasChanged; // 是否已经对其削减过
+                                                                       // 如果线段已经被削减过，那么只延长，不削减
+                            if (((corPoint.x < innerLine.xRange.max && corPoint.x > innerLine.xRange.min) ||
+                                (corPoint.y < innerLine.yRange.max && corPoint.y > innerLine.yRange.min)) && !hasChanged) {
+                                // 如果点在直线的范围内，对其进行削减
+                                double v1[2] = { innerLine.endPoint.x - corPoint.x, innerLine.endPoint.y - corPoint.y };
+                                double v2[2] = { innerLine.startPoint.x - corPoint.x, innerLine.startPoint.y - corPoint.y };
+                                YFPoint otherPoint;
+                                if (pow(v1[0], 2) + pow(v1[1], 2) < pow(v2[0], 2) + pow(v2[1], 2)) otherPoint = innerLine.startPoint;
+                                else otherPoint = innerLine.endPoint;
+                                inlinesMap.at(key[k]) = LINE({ YFSegment(corPoint, otherPoint), true });
+                            } else {
+                                // 如果点在直线范围外，对其进行延长
+                                vector<YFPoint> edgePoints = {
+                                    innerLine.startPoint, innerLine.endPoint,
+                                    corPoint
+                                };
+                                sort(edgePoints.begin(), edgePoints.end(), compare); // 将两条线的端点进行排序
+                                YFSegment combineLine = YFSegment(edgePoints.at(0), edgePoints.at(2));
+                                inlinesMap.at(key[k]) = LINE({ combineLine, true }); // 更新对应的中线
+                            }
                         }
                     }
                 }
             }
-            innerLines.insert(innerLines.end(), innerLinesOfRegion.begin(), innerLinesOfRegion.end());
         }
-        //int count = innerLines.size();
-        //if (count > 0) {
-        //    for (int i = 0; i < count - 1; i++) {
-        //        auto curLine = innerLines.at(i);
-        //        for (int j = i + 1; j < count; j++) {
-        //            auto otherLine = innerLines.at(j);
-        //            auto corPoint = curLine.getCorWith(otherLine);
-        //            if (corPoint.isNULL) continue;
-        //            vector<YFSegment> tmpArr = { curLine, otherLine };
-        //            int index[2] = { i, j };
-        //            //continue;
-        //            for (int k = 0; k < tmpArr.size(); k++) {
-        //                auto innerLine = tmpArr.at(k);
-        //                // 如果点在直线的范围内
-        //                double v1[2] = { innerLine.endPoint.x - corPoint.x, innerLine.endPoint.y - corPoint.y };
-        //                double v2[2] = { innerLine.startPoint.x - corPoint.x, innerLine.startPoint.y - corPoint.y };
-        //                YFPoint otherPoint;
-        //                if (pow(v1[0], 2) + pow(v1[1], 2) < pow(v2[0], 2) + pow(v2[1], 2)) otherPoint = innerLine.startPoint;
-        //                else otherPoint = innerLine.endPoint;
-        //                innerLines.at(index[k]) = YFSegment(corPoint, otherPoint);
-        //            }
-        //        }
-        //    }
-        //}
-        return innerLines;
+        vector<YFSegment> inlines;
+        for (auto it = inlinesMap.begin(); it != inlinesMap.end(); it++) {
+            inlines.push_back(it->second.s);
+        }
+        return inlines;
     }
 
     YFRegion::YFRegion() {

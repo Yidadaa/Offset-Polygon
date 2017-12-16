@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
+#include <map>
 
 using namespace std;
 
@@ -41,13 +41,14 @@ namespace HouseProcess {
             double min;
             double max;
         };
-        double a, b, c;
+        double a, b, c; // 直线的一般式方程的三个参数
         string id;
         Range xRange;
         Range yRange;
         YFPoint startPoint;
         YFPoint endPoint;
         YFPoint center;
+        double thickness; // 墙壁厚度
         bool isNULL;
         double distance; // 直线距离，而非曲线距离
         YFSegment();
