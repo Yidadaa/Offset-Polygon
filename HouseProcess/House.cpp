@@ -495,6 +495,7 @@ namespace HouseProcess {
             auto b = sortPoints(l.startPoint, l.endPoint);
             auto msp = YFSegment(a[0], b[0]).center;
             auto mep = YFSegment(a[1], b[1]).center;
+            msp.bulge = s.startPoint.bulge;
 
             return YFSegment(msp, mep);
         };
@@ -568,6 +569,8 @@ namespace HouseProcess {
 
                     auto m1 = computeMidLine(s, opLines[0].nearestLine);
                     auto m2 = computeMidLine(s, opLines[1].nearestLine);
+                    m1.thickness = opLines[0].minDistance;
+                    m2.thickness = opLines[1].minDistance;
                     vector<YFSegment> m({ m1, m2 });
                     sort(m.begin(), m.end(), compareLine);
                     bool hasReverse = !m[0].center.isEqualTo(m1.center); // 是否进行重排序了
