@@ -801,11 +801,13 @@ namespace HouseProcess {
             return vector_1[0] * vector_2[1] > vector_1[1] * vector_2[0]; // 如果为true，那么就是逆时针；如果为false，那么就是逆时针
         };
 
+        if (this->borders.size() < 3) return 0.0; // 构不成区域时，直接返回0
+
         /* 判断整个区域的顺逆方向 */
         int cw = 0; // 顺时针方向的角 clockwise
         int anticw = 0; // 逆时针方向的角 anticlockwise
-        for (int i = 0; i < this->borders.size() - 1; i++) {
-            if (arcDirection(this->borders.at(i), this->borders.at(i + 1))) {
+        for (int i = 0; i < this->borders.size(); i++) {
+            if (arcDirection(this->borders.at(i), this->borders.at((i + 1) % this->borders.size()))) {
                 anticw++;
             } else cw++;
         }

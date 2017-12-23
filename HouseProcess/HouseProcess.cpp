@@ -49,6 +49,10 @@ void test() {
         YFSegment(YFPoint(0.5, 0), YFPoint(0, 0), "line_3"),
         YFSegment(YFPoint(1, 0), YFPoint(0.5, 0), "line_4")
     };
+    vector<YFSegment> segs_3 = {
+        YFSegment(YFPoint(0, 1), YFPoint(1, 1))
+    };
+    YFHouse(segs_3, 0.15); // ≤‚ ‘‘ΩΩÁ
     YFHouse h = YFHouse(segs_2, 0.35);
     bool hasPassed = false;
     vector<string> conds = { "line_2", "line_1", "line_3", "line_4" };
