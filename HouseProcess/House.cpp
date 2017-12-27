@@ -561,7 +561,7 @@ namespace HouseProcess {
                     vector<int> keys;
                 };
                 vector<TMP_MID_LINE> midLines;
-                for each (auto nLine in opLines) {
+                for (auto nLine : opLines) {
                     if (!nLine.nearestLine.isNULL) {
                         auto nearestLine = nLine.nearestLine;
                         auto midLine = computeMidLine(s, nearestLine);
