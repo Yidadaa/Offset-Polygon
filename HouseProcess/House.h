@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <set>
 
 using namespace std;
 
@@ -55,6 +56,7 @@ namespace HouseProcess {
         YFSegment(YFPoint sp, YFPoint ep, string id);
         YFSegment(YFPoint sp, YFPoint ep);
         YFPoint getCorWith(YFSegment s);
+        YFPoint getCorWithOutBorder(YFSegment s);
         vector<YFPoint> getCorWithRegion(YFRegion r);
         bool isParalWith(YFSegment s);
         bool hasPoint(YFPoint p); // 判断某点是否在线段上
@@ -83,7 +85,7 @@ namespace HouseProcess {
         double outWallThickness;
         vector<YFRegion> findRegions(vector<YFSegment> lines);
         vector<YFSegment> findOutLines();
-        vector<YFSegment> findInnerLiners();
+        vector<YFSegment> findInnerLines();
         vector<YFSegment> lines;
         vector<YFSegment> outLines; // 外延轮廓线
         vector<YFSegment> innerLines; // 中墙线
