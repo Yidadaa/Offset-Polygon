@@ -50,3 +50,15 @@ int main() {
 }
 
 ```
+
+Original polygons:
+![](./imgs/original_polygon.jpg)
+
+Area and perimeter of polygons:
+![](./imgs/area_and_perimeter_of_polygon.jpg)
+
+Union and offset polygon:
+![](./imgs/polygon_with_outside_edge.jpg)
+
+Mid-lines of polygons:
+![](./imgs/polygon_with_middle_line.jpg)
